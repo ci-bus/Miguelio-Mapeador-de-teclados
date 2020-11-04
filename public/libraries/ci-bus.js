@@ -1405,6 +1405,7 @@ cb.autoid = function(pre) {
 
 // Function to search close element
 cb.queryClose = function (el, find, child) {
+    if (!el) return $();
     var ele;
     Array.from(el.children).forEach(c => {
         if (!ele && c != child) {
@@ -3505,37 +3506,37 @@ cb.props = {
             text: opt.badge }));
     },
     'click': function(ele, opt) {
-        $(ele).click(opt.click);
+        $(ele).on('click', opt.click);
     },
     'dblclick': function(ele, opt) {
-        $(ele).dblclick(opt.dblclick);
+        $(ele).on('dblclick', opt.dblclick);
     },
     'mouseover': function(ele, opt) {
-        $(ele).mouseover(opt.mouseover);
+        $(ele).on('mouseover', opt.mouseover);
     },
     'mouseout': function(ele, opt) {
-        $(ele).mouseout(opt.mouseout);
+        $(ele).on('mouseout', opt.mouseout);
     },
     'focus': function(ele, opt) {
-        $(ele).focus(opt.focus);
+        $(ele).on('focus', opt.focus);
     },
     'blur': function(ele, opt) {
-        $(ele).blur(opt.blur);
+        $(ele).on('blur', opt.blur);
     },
     'keydown': function(ele, opt) {
-        $(ele).keydown(opt.keydown);
+        $(ele).on('keydown', opt.keydown);
     },
     'keyup': function(ele, opt) {
-        $(ele).keyup(opt.keyup);
+        $(ele).on('keyup', opt.keyup);
     },
     'change': function(ele, opt) {
-        $(ele).change(opt.change);
+        $(ele).on('change', opt.change);
     },
     'mouseenter': function(ele, opt) {
-        $(ele).mouseenter(opt.mouseenter);
+        $(ele).on('mouseenter', opt.mouseenter);
     },
     'mouseleave': function(ele, opt) {
-        $(ele).mouseleave(opt.mouseleave);
+        $(ele).on('mouseleave', opt.mouseleave);
     }
 };
 

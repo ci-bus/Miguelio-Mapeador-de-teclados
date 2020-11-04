@@ -1,5 +1,24 @@
 cb.define({
     xtype: 'store',
+    name: 'codes',
+    data: {
+        elementalv1: (() => {
+            let data = [],
+                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|1|2|3|4|5|6|7|8|9|0|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|CTRL 2|FN 1|FN 2'.split('|'),
+                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|4|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|132|1|2'.split('|');
+            for (let i = 0; i < codes.length; i ++) {
+                data.push({
+                    letter: letter[i],
+                    code: parseInt(codes[i])
+                });
+            }
+            return data;
+        })()
+    }
+});
+
+cb.define({
+    xtype: 'store',
     name: 'models',
     data: {
         elementalv1: {
@@ -124,7 +143,7 @@ cb.define({
                     letter: 'ENTER',
                     position: 43,
                     u: 1.5,
-                    code: 178
+                    code: 176
                 }, {
                     letter: 'SUPR',
                     position: 29,
@@ -135,7 +154,7 @@ cb.define({
                     letter: 'MAYUS',
                     position: 30,
                     u: 1.75,
-                    code: 3
+                    code: 4
                 }, {
                     letter: 'A',
                     position: 31,
@@ -321,6 +340,7 @@ cb.define({
     name: 'key',
     items: {
         xtype: 'button',
+        type: 'primary',
         width: '{width}',
         height: '{height}',
         text: '{letter}',
@@ -331,9 +351,11 @@ cb.define({
             record.width = (record.width || 50) * (record.u || 1);
             record.height = (record.height || 50);
             if (record.special === 1) {
-                opt.position = 'relative';
-                opt.top = -5;
-                opt.color = 'rgb(239, 239, 239)';
+                Object.assign(opt, {
+                    color: '#337ab7',
+                    position: 'relative',
+                    top: -10
+                });
             }
             return record;
         }
@@ -341,31 +363,142 @@ cb.define({
 });
 
 cb.define({
+    xtype: 'component',
+    name: 'edita_tecla',
+    display: 'none',
+    items: [{
+        xtype: 'br'
+    }, {
+        xtype: 'panel',
+        items: [{
+            xtype: 'form',
+            margin: 10,
+            items: [{
+                xtype: 'row',
+                defaults: {
+                    xtype: 'col',
+                    size: 4,
+                    align: 'center'
+                },
+                items: [{
+                    items: {
+                        xtype: 'button',
+                        type: 'dark',
+                        id: 'key'
+                    }
+                }, {
+                    items: {
+                        xtype: 'toolbar',
+                        defaults: {
+                            display: 'inline'
+                        },
+                        items: [{
+                            xtype: 'select',
+                            name: 'letter',
+                            width: 'auto',
+                            padding: 5,
+                            change () {
+                                let cmp = cb.getCmp(this),
+                                    input = cmp.queryClose('input'),
+                                    option = cmp.down('option:selected');
+                                if (cmp.getValue()) {
+                                    input.val(cmp.getValue());
+                                }
+                                cmp.queryClose('button').html(
+                                    option ? option.html() : input.val()
+                                );
+                            },
+                            items: {
+                                store: 'codes',
+                                storelink: true,
+                                field: 'elementalv1',
+                                text: '{letter}',
+                                value: '{code}',
+                                
+                            }
+                        }, {
+                            xtype: 'input',
+                            type: 'numeric',
+                            width: 60,
+                            placeholder: 'Código',
+                            padding: 5,
+                            name: 'code',
+                            keyup () {
+                                cb.getCmp(this).queryClose('select').val(cb.getCmp(this).getValue()).trigger('change');
+                            }
+                        }]
+                    }
+                }, {
+                    items: [{
+                        xtype: 'button',
+                        text: 'Aplicar'
+                    }, {
+                        xtype: 'button',
+                        text: 'Cancelar'
+                    }]
+                }]
+            }]
+        }]
+    }]
+});
+
+cb.define({
     xtype: 'view',
     name: 'elementalv1',
     renderTo: 'body',
     items: [{
-        xtype: 'header',
+        xtype: 'container',
+        type: 'fluid',
+        id: 'header',
         items: [{
             xtype: 'h1',
             text: 'Mapeador de teclados'
         }]
     }, {
-        xtype: 'div',
+        xtype: 'container',
+        type: 'fluid',
         store: 'models',
         storelink: true,
         field: 'elementalv1',
+        overflow: 'auto',
         items: {
             xtype: 'div',
-            field: 'rows',
-            css: {
-                'margin-top': 5
-            },
+            overflow: 'auto',
+            width: 875,
+            margin:'auto',
             items: {
-                xtype: 'key',
-                field: 'keys'
+                xtype: 'div',
+                field: 'rows',
+                css: {
+                    'margin-top': 5
+                },
+                items: {
+                    xtype: 'key',
+                    field: 'keys',
+                    click () {
+                        let et = cb.getCmp('edita_tecla'),
+                            cmp = cb.getCmp(this),
+                            record = cmp.getRecord();
+
+                        if (!record.special) {
+                            et.show();
+                            et.down('select[name="letter"]').val(record.code);
+                            et.down('input[name="code"]').val(record.code);
+                            et.down('#key').html(record.letter);
+                            cmp.queryClose('button.btn-success').removeClass('btn-success');
+                            cmp.queryClose('button').addClass('btn-success');
+                        }
+                        
+                    }
+                }
             }
         }
+    }, {
+        xtype: 'container',
+        id: 'menu',
+        items: [{
+            xtype: 'edita_tecla',
+        }]
     }]
 });
 
