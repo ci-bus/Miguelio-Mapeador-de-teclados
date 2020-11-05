@@ -859,7 +859,7 @@ cb.base.element = {
         } else if ($.isNumeric(id)) {
             return this.children()[id]? cb.getCmp(this.children()[id]): null;
         }
-        return null;
+        return $();
     },
     up: function (id, pos) {
         if (!pos) pos = 0;

@@ -1,5 +1,53 @@
 cb.define({
     xtype: 'store',
+    name: 'ports'
+});
+
+cb.define({
+    xtype: 'component',
+    name: 'header',
+    renderTo: '#header',
+    items: [{
+        xtype: 'nav',
+        type: 'default static-top',
+        items: [{
+            xtype: 'header',
+            items: [{
+                xtype: 'img',
+                src: '/img/miguelio.png'
+            }]
+        }, {
+            xtype: 'collapse',
+            items: [{
+                xtype: 'navbar',
+                type: 'right',
+                items: [{
+                    xtype: 'dropdown',
+                    text: ' Puertos USB ',
+                    glyphicon: 'flash',
+                    items: [{
+                        xtype: 'a',
+                        store: 'ports',
+                        storelink: true,
+                        text: '{name}',
+                        cursor: 'pointer'
+                    }]
+                }, {
+                    xtype: 'button',
+                    margin: '8px 0 0',
+                    glyphicon: 'repeat',
+                    click () {
+                        cb.getView('main').render();
+                        cb.getController('mapeador').socket.emit('getPortsList');
+                    }
+                }]
+            }]
+        }]
+    }]
+});
+
+cb.define({
+    xtype: 'store',
     name: 'codes',
     data: {
         elementalv1: (() => {
@@ -20,6 +68,19 @@ cb.define({
 cb.define({
     xtype: 'store',
     name: 'models',
+    setKey (model, position, data) {
+        let rows = this.data[model].rows;
+        rows.forEach(row => {
+            row.keys.forEach(key => {
+                if (key.position == position) {
+                    key.letter = data.letter;
+                    key.code = data.code;
+                    key.buttonType = 'info';
+                }
+            })
+        });
+        this.storelink(model);
+    },
     data: {
         elementalv1: {
             rows: [{
@@ -28,43 +89,43 @@ cb.define({
                     position: 0,
                     code: 27
                 }, {
-                    letter: '1',
+                    letter: '1 !',
                     position: 1,
                     code: 166
                 }, {
-                    letter: '2',
+                    letter: '2 @',
                     position: 2,
                     code: 167
                 }, {
-                    letter: '3',
+                    letter: '3 #',
                     position: 3,
                     code: 168
                 }, {
-                    letter: '4',
+                    letter: '4 $',
                     position: 4,
                     code: 169
                 }, {
-                    letter: '5',
+                    letter: '5 %',
                     position: 5,
                     code: 170
                 }, {
-                    letter: '6',
+                    letter: '6 &',
                     position: 6,
                     code: 171
                 }, {
-                    letter: '7',
+                    letter: '7 /',
                     position: 7,
                     code: 172
                 }, {
-                    letter: '8',
+                    letter: '8 (',
                     position: 8,
                     code: 173
                 }, {
-                    letter: '9',
+                    letter: '9 )',
                     position: 9,
                     code: 174
                 }, {
-                    letter: '0',
+                    letter: '0 =',
                     position: 10,
                     code: 175
                 }, {
@@ -204,11 +265,8 @@ cb.define({
                     position: 42,
                     code: 186
                 }, {
-                    letter: '-',
-                    position: 43,
                     u: 1.25,
-                    special: 1,
-                    code: 176
+                    special: 1
                 }, {
                     letter: 'HOME',
                     position: 44,
@@ -344,18 +402,16 @@ cb.define({
         width: '{width}',
         height: '{height}',
         text: '{letter}',
-        border: 0,
         padding: 0,
         alterdata (record, opt) {
             // Defaults
             record.width = (record.width || 50) * (record.u || 1);
             record.height = (record.height || 50);
             if (record.special === 1) {
-                Object.assign(opt, {
-                    color: '#337ab7',
-                    position: 'relative',
-                    top: -10
-                });
+                opt.visibility = 'hidden';
+            }
+            if (record.buttonType) {
+                opt.type = record.buttonType;
             }
             return record;
         }
@@ -370,8 +426,15 @@ cb.define({
         xtype: 'br'
     }, {
         xtype: 'panel',
+        css: {
+            'max-width': 600
+        },
+        margin: 'auto',
         items: [{
-            xtype: 'form',
+            xtype: 'head',
+            text: 'Configuración de tecla'
+        }, {
+            xtype: 'div',
             margin: 10,
             items: [{
                 xtype: 'row',
@@ -383,7 +446,7 @@ cb.define({
                 items: [{
                     items: {
                         xtype: 'button',
-                        type: 'dark',
+                        type: 'success',
                         id: 'key'
                     }
                 }, {
@@ -404,8 +467,8 @@ cb.define({
                                 if (cmp.getValue()) {
                                     input.val(cmp.getValue());
                                 }
-                                cmp.queryClose('button').html(
-                                    option ? option.html() : input.val()
+                                cmp.queryClose('button').text(
+                                    option ? option.text() : input.val()
                                 );
                             },
                             items: {
@@ -419,10 +482,10 @@ cb.define({
                         }, {
                             xtype: 'input',
                             type: 'numeric',
+                            name: 'code',
                             width: 60,
                             placeholder: 'Código',
                             padding: 5,
-                            name: 'code',
                             keyup () {
                                 cb.getCmp(this).queryClose('select').val(cb.getCmp(this).getValue()).trigger('change');
                             }
@@ -431,10 +494,22 @@ cb.define({
                 }, {
                     items: [{
                         xtype: 'button',
-                        text: 'Aplicar'
+                        text: 'Aplicar',
+                        click () {
+                            let et = cb.getCmp('edita_tecla'),
+                                record = et.getRecord();
+                            cb.getStore('models').setKey('elementalv1', record.position, {
+                                letter: et.down('option:selected').text(),
+                                code: et.down('input[name="code"]').getValue()
+                            });
+                            et.hide();
+                        }
                     }, {
                         xtype: 'button',
-                        text: 'Cancelar'
+                        text: 'Cancelar',
+                        click () {
+                            cb.getCmp('edita_tecla').hide();
+                        }
                     }]
                 }]
             }]
@@ -444,28 +519,44 @@ cb.define({
 
 cb.define({
     xtype: 'view',
-    name: 'elementalv1',
+    name: 'main',
     renderTo: 'body',
     items: [{
         xtype: 'container',
         type: 'fluid',
-        id: 'header',
-        items: [{
-            xtype: 'h1',
-            text: 'Mapeador de teclados'
-        }]
+        id: 'header'
     }, {
         xtype: 'container',
         type: 'fluid',
+        id: 'content',
+        items: [{
+            text: '<strong>1.</strong> Selecciona el puerto USB donde esta conectado el teclado'
+        }]
+    }, {
+        xtype: 'container',
+        id: 'menu',
+        items: [{
+            xtype: 'edita_tecla',
+        }]
+    }]
+});
+
+cb.define({
+    xtype: 'component',
+    name: 'elementalv1',
+    renderTo: '#content',
+    items: {
         store: 'models',
         storelink: true,
         field: 'elementalv1',
         overflow: 'auto',
         items: {
             xtype: 'div',
+            id: 'keyboard',
             overflow: 'auto',
-            width: 875,
-            margin:'auto',
+            width: 880,
+            margin: 'auto',
+            padding: 2,
             items: {
                 xtype: 'div',
                 field: 'rows',
@@ -478,35 +569,36 @@ cb.define({
                     click () {
                         let et = cb.getCmp('edita_tecla'),
                             cmp = cb.getCmp(this),
-                            record = cmp.getRecord();
+                            record = cmp.getRecord()
+                            keyboard = cb.getCmp('#keyboard');
 
                         if (!record.special) {
+                            et.setRecord(cmp.getRecord());
                             et.show();
                             et.down('select[name="letter"]').val(record.code);
-                            et.down('input[name="code"]').val(record.code);
+                            et.down('input[name="code"]').val(record.code).trigger('focus');
                             et.down('#key').html(record.letter);
-                            cmp.queryClose('button.btn-success').removeClass('btn-success');
+                            keyboard.down('button.btn-success').removeClass('btn-success');
                             cmp.queryClose('button').addClass('btn-success');
                         }
-                        
                     }
                 }
             }
         }
-    }, {
-        xtype: 'container',
-        id: 'menu',
-        items: [{
-            xtype: 'edita_tecla',
-        }]
-    }]
+    }
 });
 
 cb.define({
     xtype: 'controller',
-    name: 'mapper',
-
+    name: 'mapeador',
     onload () {
-        cb.getView('elementalv1').render();
+        this.socket = s = io.connect('http://localhost', { 'forceNew': true });
+
+        s.on('portsList', function (data) {
+            cb.getStore('ports').setData(data);
+            cb.getComponent('header').render();
+        });
+
+        s.emit('getPortsList');
     }
 });

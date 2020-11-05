@@ -2,7 +2,6 @@
 @import url("bower_components/bootstrap/dist/css/bootstrap.min.css");
 @import url("bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css");
 
-.btn-dark {
-    background-color: #555;
-    color: white;
+body {
+    background-color: #f2f5f7;
 }
