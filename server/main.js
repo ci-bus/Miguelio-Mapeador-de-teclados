@@ -1,8 +1,9 @@
-var express = require('express'),
+const express = require('express'),
     app = express(),
     server = require('http').Server(app),
     io = require('socket.io')(server),
-    SerialPort = require("serialport");
+    SerialPort = require("serialport"),
+    Readline = require('@serialport/parser-readline');
 
 app.use(express.static('../public'));
 
@@ -16,10 +17,7 @@ io.on('connection', (socket) => {
             let portsList = [];
             ports.forEach((port) => {
                 if (port.manufacturer) {
-                    portsList.push({
-                        name: port.manufacturer,
-                        port: port.path
-                    });
+                    portsList.push(port);
                 }
             });
 
@@ -27,16 +25,39 @@ io.on('connection', (socket) => {
         });
     });
 
+    // Seleccion de puerto
+    socket.on('selectPort', port => {
+
+        // Puerto serial
+        app.arduinoSerialPort = new SerialPort(port.path, {  
+            bauDrate: 9600
+        }).setEncoding('utf8');
+           
+        // Abir puerto
+        app.arduinoSerialPort.on('open', () => {
+
+            // Preguntar por el tipo de teclado
+            app.arduinoSerialPort.write("who are you?");
+            socket.emit('portConnected', port);
+        });
+
+        // Mensaje desde arduino
+        app.arduinoSerialPort.on('readable', () => {
+            let data = app.arduinoSerialPort.read().split('\n');
+            data.forEach(d => socket.emit('fromArduino', d.split(':').map(d => d.trim())));
+        });
+    });
+
+    socket.on('getKeyCodes', () => {
+        // Pedir los codigos de teclas configurados
+        app.arduinoSerialPort.write("getKeyCodes");
+    });
 
     // Cuando desconecta
     socket.on('disconnect', () => {
-        /*
-        // Emite el cliente para ser eliminado en el front
-        socket.broadcast.emit('del-client', socket.id);
-        // Elimina al cliente
-        clients.deleteClient(socket.id);
-        console.log(`Conectados ${Object.entries(clients.getClients()).length} clientes`);
-        */
+        if (app.arduinoSerialPort && app.arduinoSerialPort.isOpen) {
+            app.arduinoSerialPort.close();
+        }
     });
 });
 

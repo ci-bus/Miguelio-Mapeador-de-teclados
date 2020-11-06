@@ -29,8 +29,11 @@ cb.define({
                         xtype: 'a',
                         store: 'ports',
                         storelink: true,
-                        text: '{name}',
-                        cursor: 'pointer'
+                        text: '{manufacturer}',
+                        cursor: 'pointer',
+                        click () {
+                            cb.getController('mapeador').socket.emit('selectPort', cb.getCmp(this).getRecord());
+                        }
                     }]
                 }, {
                     xtype: 'button',
@@ -52,8 +55,8 @@ cb.define({
     data: {
         elementalv1: (() => {
             let data = [],
-                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|1|2|3|4|5|6|7|8|9|0|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|CTRL 2|FN 1|FN 2'.split('|'),
-                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|4|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|132|1|2'.split('|');
+                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|1 !|2 @|3 #|4 $|5 &|6 &|7 /|8 (|9 )|0 =|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|CTRL 2|FN 1|FN 2'.split('|'),
+                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|-4|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|132|1|2'.split('|');
             for (let i = 0; i < codes.length; i ++) {
                 data.push({
                     letter: letter[i],
@@ -62,6 +65,9 @@ cb.define({
             }
             return data;
         })()
+    },
+    getKey (model, code) {
+        return this.data[model].find(key => key.code == code);
     }
 });
 
@@ -215,7 +221,7 @@ cb.define({
                     letter: 'MAYUS',
                     position: 30,
                     u: 1.75,
-                    code: 4
+                    code: -4
                 }, {
                     letter: 'A',
                     position: 31,
@@ -542,10 +548,20 @@ cb.define({
 });
 
 cb.define({
+  xtype: 'component',
+  name: 'portInfo',
+  renderTo: '#content',
+  items: {
+      xtype: 'container',
+      align: 'center'
+  }  
+});
+
+cb.define({
     xtype: 'component',
     name: 'elementalv1',
-    renderTo: '#content',
-    items: {
+    appendTo: '#content',
+    items: [{
         store: 'models',
         storelink: true,
         field: 'elementalv1',
@@ -585,18 +601,54 @@ cb.define({
                 }
             }
         }
-    }
+    }]
 });
 
 cb.define({
     xtype: 'controller',
     name: 'mapeador',
     onload () {
-        this.socket = s = io.connect('http://localhost', { 'forceNew': true });
+        let ctr = this;
+        ctr.socket = s = io.connect('http://localhost', { 'forceNew': true });
 
-        s.on('portsList', function (data) {
+        s.on('portsList', (data) => {
             cb.getStore('ports').setData(data);
             cb.getComponent('header').render();
+        });
+
+        s.on('portConnected', (data) => {
+            let info = cb.getComponent('portInfo');
+            info.items.items = {
+                xtype: 'h3',
+                glyphicon: 'flash',
+                text: data.manufacturer
+            };
+            info.render();
+        });
+
+        s.on('fromArduino', data => {
+            switch (data[0]) {
+                case 'model': 
+                    ctr.selectedModel = data[1];
+                    switch (data[1]) {
+                        case 'elementalv1': cb.create({
+                            text: ' - Elemental V1',
+                            appendTo: 'h3'
+                        });
+                    }
+                    s.emit('getKeyCodes');
+                    break;
+                case 'keycode': 
+                    let keycode = cb.getStore('codes').getKey(ctr.selectedModel, data[2]);
+                    debugger;
+                    cb.getStore('models').setKey(ctr.selectedModel, data[1], {
+                        letter: keycode ? keycode.letter : ' ',
+                        code: keycode ? parseInt(keycode.code) : 0
+                    });
+                    break;
+                case 'get':
+                    cb.getComponent(ctr.selectedModel).render();
+            }
         });
 
         s.emit('getPortsList');
