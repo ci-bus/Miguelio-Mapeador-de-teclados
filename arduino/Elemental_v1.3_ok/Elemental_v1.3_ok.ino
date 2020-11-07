@@ -106,6 +106,7 @@ int fila = 0;
 int columna = 0;
 int val = 0;
 int code = 0;
+int addr = 0;
 
 // Bloqueo de mayusculas
 bool bloqueo = false;
@@ -126,6 +127,7 @@ void setup() {
     pinMode(pinesFilas[i], OUTPUT);
   }
 
+  loadKeycodes();
   Serial.begin(9600);
 
 }
@@ -146,20 +148,41 @@ String getValue(String data, char separator, int index)
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+void loadKeycodes() {
+  for (columna = 0; columna < 15; columna ++) {
+    for (fila = 0; fila < 5; fila ++) {
+      addr = columna + fila * 15;
+      code = EEPROM.read(addr);
+      if (code) {
+        teclas[fila][columna] = code;
+      }
+    }
+  }
+}
+
+void changeKeycode(int addr, int code) {
+  columna = addr % 15;
+  fila = (addr - columna) / 15;
+  teclas[fila][columna] = code;
+}
+
 void loop() {
 
   if (Serial.available()) {
     String msg = Serial.readString();
     if (msg == "who are you?") {
       Serial.println("model:elementalv1");
-    } else if (msg == "getKeyCodes") {
+    } else if (msg == "get") {
       for (int i = 0; i < 15 * 5; i ++) {
-        EEPROM.get(i, code);
+        code = EEPROM.read(i);
         Serial.println("keycode:" + (String) i + ":" + (String) code);
       }
       Serial.print("get:ok");
-    } else if (msg.substring(0, 7) == "putKeyCode") {
-      EEPROM.put(getValue(msg, ':', 1).toInt(), getValue(msg, ':', 2).toInt());
+    } else if (getValue(msg, ':', 0) == "put") {
+      addr = getValue(msg, ':', 1).toInt();
+      code = getValue(msg, ':', 2).toInt();
+      EEPROM.update(addr, code);
+      changeKeycode(addr, code);
       Serial.print("put:ok");
     }
   }
@@ -180,7 +203,7 @@ void loop() {
       val = leerValor();
       
       // Si la tecla esta pulsada
-      if (val > 1) {
+      if (val > 2) {
 
         // Si la tecla NO esta marcada como pulsada
         if (matrizTeclasPulsadas[fila][columna] == false) {

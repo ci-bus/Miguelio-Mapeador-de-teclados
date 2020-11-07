@@ -4,6 +4,31 @@ cb.define({
 });
 
 cb.define({
+    xtype: 'store',
+    name: 'keycodeTail',
+    data: [],
+    applying: false,
+    addKey (key) {
+        this.data.push(key);
+        if (!this.applying) {
+            this.proccessTail();
+        }
+    },
+    proccessTail () {
+        if (this.data.length) {
+            this.applying = true;
+            cb.getCmp('#aplicando').show().down('a:first').text(this.data.length + ' Aplicando');
+            let key = this.data.splice(0, 1)[0];
+            cb.getController('mapeador').socket.emit('putKeyCode', key.position, key.code);
+            this.storelink();
+        } else {
+            this.applying = false;
+            cb.getCmp('#aplicando').hide();
+        }
+    }
+})
+
+cb.define({
     xtype: 'component',
     name: 'header',
     renderTo: '#header',
@@ -19,6 +44,25 @@ cb.define({
         }, {
             xtype: 'collapse',
             items: [{
+                xtype: 'navbar',
+                type: 'left',
+                items: {
+                    xtype: 'dropdown',
+                    id: 'aplicando',
+                    text: ' Aplicando',
+                    glyphicon: 'upload',
+                    items: [{
+                        xtype: 'a',
+                        store: 'keycodeTail',
+                        storelink: true,
+                        text: '{letter}',
+                        cursor: 'default',
+                        click () {
+                            debugger;
+                        }
+                    }]
+                }
+            }, {
                 xtype: 'navbar',
                 type: 'right',
                 items: [{
@@ -55,8 +99,8 @@ cb.define({
     data: {
         elementalv1: (() => {
             let data = [],
-                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|1 !|2 @|3 #|4 $|5 &|6 &|7 /|8 (|9 )|0 =|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|CTRL 2|FN 1|FN 2'.split('|'),
-                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|-4|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|132|1|2'.split('|');
+                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|Ñ|O|P|Q|R|S|T|U|V|W|X|Y|Z|1 !|2 @|3 #|4 $|5 &|6 &|7 /|8 (|9 )|0 =|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|CTRL 2|FN 1|FN 2'.split('|'),
+                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|187|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|-4|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|132|1|2'.split('|');
             for (let i = 0; i < codes.length; i ++) {
                 data.push({
                     letter: letter[i],
@@ -81,11 +125,15 @@ cb.define({
                 if (key.position == position) {
                     key.letter = data.letter;
                     key.code = data.code;
-                    key.buttonType = 'info';
+                    key.buttonType = data.buttonType | 'info';
                 }
             })
         });
         this.storelink(model);
+    },
+    getKey (model, position) {
+        let rows = this.data[model].rows;
+        return rows.map(row=>row.keys.find(k=>k.position==position)).filter(k=>k)[0];
     },
     data: {
         elementalv1: {
@@ -503,10 +551,16 @@ cb.define({
                         text: 'Aplicar',
                         click () {
                             let et = cb.getCmp('edita_tecla'),
-                                record = et.getRecord();
-                            cb.getStore('models').setKey('elementalv1', record.position, {
-                                letter: et.down('option:selected').text(),
-                                code: et.down('input[name="code"]').getValue()
+                                record = et.getRecord(),
+                                position = record.position,
+                                letter = et.down('option:selected').text(),
+                                code = et.down('input[name="code"]').getValue();
+                            cb.getStore('models').setKey('elementalv1', position, {
+                                letter, code
+                            });
+                            let tailStore = cb.getStore('keycodeTail');
+                            tailStore.addKey({
+                                position, code
                             });
                             et.hide();
                         }
@@ -639,15 +693,28 @@ cb.define({
                     s.emit('getKeyCodes');
                     break;
                 case 'keycode': 
-                    let keycode = cb.getStore('codes').getKey(ctr.selectedModel, data[2]);
-                    debugger;
-                    cb.getStore('models').setKey(ctr.selectedModel, data[1], {
-                        letter: keycode ? keycode.letter : ' ',
-                        code: keycode ? parseInt(keycode.code) : 0
-                    });
+                    if (!parseInt(data[2])) {
+                        // Pre-configura la tecla
+                        let key = cb.getStore('models').getKey(ctr.selectedModel, data[1]),
+                            tailStore = cb.getStore('keycodeTail');
+                        if (key) {
+                            tailStore.addKey(key);
+                        }
+                    } else {
+                        let keycode = cb.getStore('codes').getKey(ctr.selectedModel, data[2]);
+                        cb.getStore('models').setKey(ctr.selectedModel, data[1], {
+                            letter: keycode ? keycode.letter : ' ',
+                            code: keycode ? parseInt(keycode.code) : 0,
+                            buttonType: 'primary'
+                        });
+                    }
                     break;
                 case 'get':
                     cb.getComponent(ctr.selectedModel).render();
+                    break;
+                case 'put':
+                    cb.getStore('keycodeTail').proccessTail();
+                    break;
             }
         });
 

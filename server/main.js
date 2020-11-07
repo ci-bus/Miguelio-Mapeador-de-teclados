@@ -50,7 +50,11 @@ io.on('connection', (socket) => {
 
     socket.on('getKeyCodes', () => {
         // Pedir los codigos de teclas configurados
-        app.arduinoSerialPort.write("getKeyCodes");
+        app.arduinoSerialPort.write("get");
+    });
+
+    socket.on('putKeyCode', (position, keycode) => {
+        app.arduinoSerialPort.write("put:"+position+":"+keycode);
     });
 
     // Cuando desconecta
