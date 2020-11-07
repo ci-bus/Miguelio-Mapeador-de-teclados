@@ -5,7 +5,7 @@ cb.define({
 
 cb.define({
     xtype: 'store',
-    name: 'keycodeTail',
+    name: 'keycodesTail',
     data: [],
     applying: false,
     addKey (key) {
@@ -17,13 +17,17 @@ cb.define({
     proccessTail () {
         if (this.data.length) {
             this.applying = true;
-            cb.getCmp('#aplicando').show().down('a:first').text(this.data.length + ' Aplicando');
+            cb.getCmp('#content').hide();
+            let loadingText = 'Aplicando ' + this.data.length;
+            loadingText += this.data.length === 1 ? ' cambio' : ' cambios';
+            cb.getCmp('#loading').show().down('#loading-msg').text(loadingText);
             let key = this.data.splice(0, 1)[0];
             cb.getController('mapeador').socket.emit('putKeyCode', key.position, key.code);
             this.storelink();
         } else {
             this.applying = false;
-            cb.getCmp('#aplicando').hide();
+            cb.getCmp('#loading').hide();
+            cb.getCmp('#content').show();
         }
     }
 })
@@ -45,25 +49,6 @@ cb.define({
             xtype: 'collapse',
             items: [{
                 xtype: 'navbar',
-                type: 'left',
-                items: {
-                    xtype: 'dropdown',
-                    id: 'aplicando',
-                    text: ' Aplicando',
-                    glyphicon: 'upload',
-                    items: [{
-                        xtype: 'a',
-                        store: 'keycodeTail',
-                        storelink: true,
-                        text: '{letter}',
-                        cursor: 'default',
-                        click () {
-                            debugger;
-                        }
-                    }]
-                }
-            }, {
-                xtype: 'navbar',
                 type: 'right',
                 items: [{
                     xtype: 'dropdown',
@@ -77,6 +62,7 @@ cb.define({
                         cursor: 'pointer',
                         click () {
                             cb.getController('mapeador').socket.emit('selectPort', cb.getCmp(this).getRecord());
+                            cb.getCmp('#content').hide();
                         }
                     }]
                 }, {
@@ -558,7 +544,7 @@ cb.define({
                             cb.getStore('models').setKey('elementalv1', position, {
                                 letter, code
                             });
-                            let tailStore = cb.getStore('keycodeTail');
+                            let tailStore = cb.getStore('keycodesTail');
                             tailStore.addKey({
                                 position, code
                             });
@@ -590,8 +576,26 @@ cb.define({
         type: 'fluid',
         id: 'content',
         items: [{
-            text: '<strong>1.</strong> Selecciona el puerto USB donde esta conectado el teclado'
+            xtype: 'h4',
+            text: 'Selecciona el puerto USB donde esta conectado el teclado',
+            align: 'center'
         }]
+    }, {
+        xtype: 'container',
+        id: 'loading',
+        display: 'none',
+        html: `<div class="sk-cube-grid">
+            <div class="sk-cube sk-cube1"></div>
+            <div class="sk-cube sk-cube2"></div>
+            <div class="sk-cube sk-cube3"></div>
+            <div class="sk-cube sk-cube4"></div>
+            <div class="sk-cube sk-cube5"></div>
+            <div class="sk-cube sk-cube6"></div>
+            <div class="sk-cube sk-cube7"></div>
+            <div class="sk-cube sk-cube8"></div>
+            <div class="sk-cube sk-cube9"></div>
+        </div>
+        <h3 id="loading-msg" class="text-center"></h3>`
     }, {
         xtype: 'container',
         id: 'menu',
@@ -671,13 +675,17 @@ cb.define({
         });
 
         s.on('portConnected', (data) => {
+            // Renderiza información puerto abierto
             let info = cb.getComponent('portInfo');
             info.items.items = {
                 xtype: 'h3',
+                id: 'portinfo-msg',
                 glyphicon: 'flash',
                 text: data.manufacturer
             };
             info.render();
+            // Muestra cargando
+            cb.getCmp('#loading').show().down('#loading-msg').text(' ');
         });
 
         s.on('fromArduino', data => {
@@ -685,10 +693,13 @@ cb.define({
                 case 'model': 
                     ctr.selectedModel = data[1];
                     switch (data[1]) {
-                        case 'elementalv1': cb.create({
-                            text: ' - Elemental V1',
-                            appendTo: 'h3'
-                        });
+                        case 'elementalv1':
+                            cb.create({
+                                text: ' - Elemental V1',
+                                appendTo: '#portinfo-msg'
+                            });
+                            cb.getCmp('#loading-msg').text('Elemental V1');
+                            break;
                     }
                     s.emit('getKeyCodes');
                     break;
@@ -696,7 +707,7 @@ cb.define({
                     if (!parseInt(data[2])) {
                         // Pre-configura la tecla
                         let key = cb.getStore('models').getKey(ctr.selectedModel, data[1]),
-                            tailStore = cb.getStore('keycodeTail');
+                            tailStore = cb.getStore('keycodesTail');
                         if (key) {
                             tailStore.addKey(key);
                         }
@@ -711,11 +722,21 @@ cb.define({
                     break;
                 case 'get':
                     cb.getComponent(ctr.selectedModel).render();
+                    cb.getCmp('#loading').hide();
+                    cb.getCmp('#content').show();
                     break;
                 case 'put':
-                    cb.getStore('keycodeTail').proccessTail();
+                    cb.getStore('keycodesTail').proccessTail();
                     break;
             }
+        });
+
+        s.on('disconnect', () => {
+            location.reload();
+        });
+
+        s.on('error', () => {
+            location.reload();
         });
 
         s.emit('getPortsList');

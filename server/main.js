@@ -2,10 +2,15 @@ const express = require('express'),
     app = express(),
     server = require('http').Server(app),
     io = require('socket.io')(server),
-    SerialPort = require("serialport"),
-    Readline = require('@serialport/parser-readline');
+    SerialPort = require("serialport");
 
 app.use(express.static('../public'));
+
+app.closePort = () => {
+    if (app.arduinoSerialPort && app.arduinoSerialPort.isOpen) {
+        app.arduinoSerialPort.close();
+    }
+}
 
 io.on('connection', (socket) => {
     
@@ -29,6 +34,7 @@ io.on('connection', (socket) => {
     socket.on('selectPort', port => {
 
         // Puerto serial
+        app.closePort();
         app.arduinoSerialPort = new SerialPort(port.path, {  
             bauDrate: 9600
         }).setEncoding('utf8');
@@ -46,6 +52,16 @@ io.on('connection', (socket) => {
             let data = app.arduinoSerialPort.read().split('\n');
             data.forEach(d => socket.emit('fromArduino', d.split(':').map(d => d.trim())));
         });
+
+        // Al desconectar el puerto
+        app.arduinoSerialPort.on('close', () => {
+            socket.emit('disconnect');
+        });
+
+        // Al producir un error
+        app.arduinoSerialPort.on('error', () => {
+            socket.emit('error');
+        });
     });
 
     socket.on('getKeyCodes', () => {
@@ -59,9 +75,7 @@ io.on('connection', (socket) => {
 
     // Cuando desconecta
     socket.on('disconnect', () => {
-        if (app.arduinoSerialPort && app.arduinoSerialPort.isOpen) {
-            app.arduinoSerialPort.close();
-        }
+        app.closePort();
     });
 });
 
