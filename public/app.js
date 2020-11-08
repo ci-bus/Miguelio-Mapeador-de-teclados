@@ -704,7 +704,7 @@ cb.define({
                     s.emit('getKeyCodes');
                     break;
                 case 'keycode': 
-                    if (!parseInt(data[2])) {
+                    if (parseInt(data[2]) === 0 || parseInt(data[2]) == 255) {
                         // Pre-configura la tecla
                         let key = cb.getStore('models').getKey(ctr.selectedModel, data[1]),
                             tailStore = cb.getStore('keycodesTail');
@@ -721,9 +721,13 @@ cb.define({
                     }
                     break;
                 case 'get':
+                    if (cb.getStore('keycodesTail').getData().length) {
+                        cb.getCmp('#content').hide();
+                    } else {
+                        cb.getCmp('#loading').hide();
+                        cb.getCmp('#content').show();
+                    }
                     cb.getComponent(ctr.selectedModel).render();
-                    cb.getCmp('#loading').hide();
-                    cb.getCmp('#content').show();
                     break;
                 case 'put':
                     cb.getStore('keycodesTail').proccessTail();
