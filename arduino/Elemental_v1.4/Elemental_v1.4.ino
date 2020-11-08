@@ -68,7 +68,6 @@ void cambiarFila(int n, int v) {
     case 4: digitalWrite(2, v);
       break;
   }
-  //delayMicroseconds(25);
 }
 
 
@@ -152,7 +151,7 @@ void setup() {
 
   // Setea mapeo
   mapeo = 0;
-
+  
   Serial.begin(9600);
 }
 
@@ -176,7 +175,7 @@ String getValue(String data, char separator, int index)
 
 // Lee la configuracion de teclas guardadas en memoria EEPROM
 void loadKeycodes() {
-  for (addr = 0; addr < 255; addr ++) {
+  for (addr = 0; addr < 225; addr ++) {
     teclas[addr] = EEPROM.read(addr);
   }
 }
@@ -224,7 +223,7 @@ void loop() {
 
     // Coger configuraciones de teclas
     } else if (msg == "get") {
-      for (addr = 0; addr < 255; addr ++) {
+      for (addr = 0; addr < 225; addr ++) {
         code = EEPROM.read(addr);
         Serial.println("keycode:" + (String) addr + ":" + (String) code);
       }

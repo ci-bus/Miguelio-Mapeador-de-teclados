@@ -33,6 +33,8 @@ io.on('connection', (socket) => {
     // Seleccion de puerto
     socket.on('selectPort', port => {
 
+        console.log('seleccionado puerto', port);
+
         // Puerto serial
         app.closePort();
         app.arduinoSerialPort = new SerialPort(port.path, {  
@@ -41,10 +43,10 @@ io.on('connection', (socket) => {
            
         // Abir puerto
         app.arduinoSerialPort.on('open', () => {
+            socket.emit('portConnected', port);
 
             // Preguntar por el tipo de teclado
             app.arduinoSerialPort.write("who are you?");
-            socket.emit('portConnected', port);
         });
 
         // Mensaje desde arduino
