@@ -33,8 +33,6 @@ io.on('connection', (socket) => {
     // Seleccion de puerto
     socket.on('selectPort', port => {
 
-        console.log('seleccionado puerto', port);
-
         // Puerto serial
         app.closePort();
         app.arduinoSerialPort = new SerialPort(port.path, {  

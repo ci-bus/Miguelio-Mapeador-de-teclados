@@ -74,13 +74,7 @@ void cambiarFila(int n, int v) {
 /*  Array con la configuración de teclas
  *  ------------------------------------
  */
-int teclas[225] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
+int teclas[150] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -98,13 +92,7 @@ int teclas[225] = {
 /*  Array para controlar las teclas pulsadas
  *  ----------------------------------------
  */
-bool matrizTeclasPulsadas[225] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
+bool matrizTeclasPulsadas[150] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -175,7 +163,7 @@ String getValue(String data, char separator, int index)
 
 // Lee la configuracion de teclas guardadas en memoria EEPROM
 void loadKeycodes() {
-  for (addr = 0; addr < 225; addr ++) {
+  for (addr = 0; addr < 150; addr ++) {
     teclas[addr] = EEPROM.read(addr);
   }
 }
@@ -186,28 +174,20 @@ void changeKeycode(int addr, int code) {
   teclas[addr] = code;
 }
 
-// Cambio de mapeo para teclas fn
-void changeMap(int fnKey) {
+// Cambio de mapeo para tecla fn
+void changeMap(int val) {
   
   // Seguridad para que no queden teclas pulsadas al cambiar de mapeo
-  for (addr = mapeo * 75; addr < mapeo * 75 + 75; addr ++) {
-
-    // Si la tecla esta marcada como pulsada
-    if (matrizTeclasPulsadas[addr]) {
-      
-      // Codigo de la tecla
-      code = teclas[addr];
-      
-      // Soltamos la tecla
-      Keyboard.release(code);
-      
-      // La desmarcamos como pulsada
-      matrizTeclasPulsadas[addr] = false;
-    }
+  for (int a = mapeo * 75; a < mapeo * 75 + 75; a ++) {
+    // La desmarcamos como pulsada
+    matrizTeclasPulsadas[a] = false;
   }
 
+  // Soltamos todas las teclas
+  Keyboard.releaseAll();
+  
   // Cambio de mapeo
-  mapeo = fnKey;
+  mapeo = val;
 }
 
 
@@ -223,7 +203,7 @@ void loop() {
 
     // Coger configuraciones de teclas
     } else if (msg == "get") {
-      for (addr = 0; addr < 225; addr ++) {
+      for (addr = 0; addr < 150; addr ++) {
         code = EEPROM.read(addr);
         Serial.println("keycode:" + (String) addr + ":" + (String) code);
       }
@@ -259,32 +239,38 @@ void loop() {
       // Codigo de la tecla
       code = teclas[addr];
       
-      // Si la tecla esta pulsada
+      // Si la tecla esta pulsada, este valor minimo dependera de la resistencia
       if (val > 10) {
 
         // Si la tecla NO esta marcada como pulsada
         if (matrizTeclasPulsadas[addr] == false) {
 
-            // Teclas comunes
-            if (code > 0) {
-
-              // Si tiene bloqueo de mayusculas
-              if (bloqueo) {
-                if (code >= 140 && code <= 165) {
-                  code = code - 75;
-                } else if (code == 187) {
-                  code = 58;
-                }
-              }
+            switch (code) {
               
-              // Pulsamos la tecla
-              Keyboard.press(code);
-
-            // Teclas fn
-            } else if (code == -1 || code == -2){
+              case 21: // Bloqueo de MAYUSCULAS, no hace nada, esto se activa al soltar la tecla
+                break;
+                
+              case 22: // Tecla FN
+                // Cambia el mapeo del teclado
                 changeMap(1);
+                addr += 75;
+                break;
+                
+              default: // Resto de teclas
+                // Si tiene bloqueo de mayusculas
+                if (bloqueo) {
+                  if (code >= 140 && code <= 165) {
+                    code = code - 75;
+                  } else if (code == 187) {
+                    code = 58;
+                  }
+                }
+                
+                // Pulsamos la tecla
+                Keyboard.press(code);
+                break;
             }
-  
+
             // La marcamos como pulsada
             matrizTeclasPulsadas[addr] = true;
         }
@@ -295,30 +281,31 @@ void loop() {
         // Si la tecla está marcada como pulsada
         if (matrizTeclasPulsadas[addr] == true) {
 
-          if (code > 0) {
-
-            // Si tiene bloqueo de mayusculas
-            if (bloqueo) {
-              if (code >= 140 && code <= 165) {
-                code = code - 75;
-              } else if (code == 187) {
-                code = 58;
-              }
-            }
+          switch (code) {
               
-            // Soltamos la tecla
-            Keyboard.release(code);
-            
-          } else {
-            
-            // Bloquer de mayusculas
-            if (code == -4) {
+            case 21: // Bloqueo de MAYUSCULAS
               bloqueo = !bloqueo;
-
-            // Teclas fn
-            } else if (code == -1 || code == -2) {
-                changeMap(0);
-            }
+              break;
+              
+            case 22: // Tecla FN
+              // Cambia el mapeo del teclado
+              changeMap(0);
+              addr -= 75;
+              break;
+              
+            default: // Resto de teclas
+              // Si tiene bloqueo de mayusculas
+              if (bloqueo) {
+                if (code >= 140 && code <= 165) {
+                  code = code - 75;
+                } else if (code == 187) {
+                  code = 58;
+                }
+              }
+              
+              // Pulsamos la tecla
+              Keyboard.release(code);
+              break;
           }
 
           // La desmarcamos como pulsada

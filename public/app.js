@@ -33,7 +33,56 @@ cb.define({
             cb.getCmp('#content').show();
         }
     }
-})
+});
+
+cb.define({
+    xtype: 'store',
+    name: 'codes',
+    data: {
+        elementalv1: (() => {
+            let data = [],
+                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|Ñ|O|P|Q|R|S|T|U|V|W|X|Y|Z|1 !|2 @|3 #|4 $|5 &|6 &|7 /|8 (|9 )|0 =|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|FN|CTRL 2|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|º \\|/|*|-|+|='.split('|'),
+                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|187|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|21|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|22|132|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|236|220|221|222|223|239'.split('|');
+            for (let i = 0; i < codes.length; i ++) {
+                data.push({
+                    letter: letter[i],
+                    code: parseInt(codes[i])
+                });
+            }
+            return data;
+        })()
+    },
+    getKey (model, code) {
+        return this.data[model].find(key => key.code == code);
+    }
+});
+
+cb.define({
+    xtype: 'store',
+    name: 'models',
+    setKey (model, position, data) {
+        let key = this.getKey(model, position);
+        if (key) {
+            key.letter = data.letter;
+            key.code = data.code;
+            key.buttonType = data.buttonType | 'info';
+        }
+        this.storelink(model);
+    },
+    getAllKeys (model) {
+        return this.getData(model).map(maps => maps.rows).flat().map(row => row.keys).flat();
+    },
+    getKey (model, position) {
+        let keys = this.getAllKeys(model);
+        return keys.find(k=>k.position==position);
+    },
+    setTitle (model, title) {
+        this.getData(model)[0].title = title;
+    },
+    data: {
+        elementalv1
+    }
+});
 
 cb.define({
     xtype: 'component',
@@ -79,53 +128,6 @@ cb.define({
             }]
         }]
     }]
-});
-
-cb.define({
-    xtype: 'store',
-    name: 'codes',
-    data: {
-        elementalv1: (() => {
-            let data = [],
-                letter = 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|Ñ|O|P|Q|R|S|T|U|V|W|X|Y|Z|1 !|2 @|3 #|4 $|5 &|6 &|7 /|8 (|9 )|0 =|SPACE|MAYUS|SHIFT|ALTGR|CTRL|ALT|CMD|WIN|UP|DOWN|LEFT|RIGHT|BORRAR|TAB|ENTER|ESC|INSERT|SUPR|HOME|END|FN|CTRL 2|FN 2|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|> <|\' ?|¡ ¿|` [|+ ]|´ {|ç }|\, ;|. :|- _|º \\'.split('|'),
-                codes = '140|141|142|143|144|145|146|147|148|149|150|151|152|153|187|154|155|156|157|158|159|160|161|162|163|164|165|166|167|168|169|170|171|172|173|174|175|180|-4|133|134|128|130|131|131|218|217|216|215|178|179|176|27|209|212|210|213|-1|132|-2|194|195|196|197|198|199|200|201|202|203|204|205|189|181|182|183|184|188|186|190|191|192|236'.split('|');
-            for (let i = 0; i < codes.length; i ++) {
-                data.push({
-                    letter: letter[i],
-                    code: parseInt(codes[i])
-                });
-            }
-            return data;
-        })()
-    },
-    getKey (model, code) {
-        return this.data[model].find(key => key.code == code);
-    }
-});
-
-cb.define({
-    xtype: 'store',
-    name: 'models',
-    setKey (model, position, data) {
-        let rows = this.data[model].rows;
-        rows.forEach(row => {
-            row.keys.forEach(key => {
-                if (key.position == position) {
-                    key.letter = data.letter;
-                    key.code = data.code;
-                    key.buttonType = data.buttonType | 'info';
-                }
-            })
-        });
-        this.storelink(model);
-    },
-    getKey (model, position) {
-        let rows = this.data[model].rows;
-        return rows.map(row=>row.keys.find(k=>k.position==position)).filter(k=>k)[0];
-    },
-    data: {
-        elementalv1
-    }
 });
 
 cb.define({
@@ -250,6 +252,7 @@ cb.define({
                         text: 'Cancelar',
                         click () {
                             cb.getCmp('edita_tecla').hide();
+                            cb.getCmp('#keyboard').down('button.btn-success').removeClass('btn-success');
                         }
                     }]
                 }]
@@ -301,60 +304,58 @@ cb.define({
 });
 
 cb.define({
-  xtype: 'component',
-  name: 'portInfo',
-  renderTo: '#content',
-  items: {
-      xtype: 'container',
-      align: 'center'
-  }  
-});
-
-cb.define({
     xtype: 'component',
     name: 'elementalv1',
-    appendTo: '#content',
-    items: [{
-        store: 'models',
-        storelink: true,
-        field: 'elementalv1',
-        overflow: 'auto',
+    renderTo: '#content',
+    items: {
+        xtype: 'div',
+        id: 'keyboard',
         items: {
             xtype: 'div',
-            id: 'keyboard',
+            store: 'models',
+            storelink: true,
+            field: 'elementalv1',
             overflow: 'auto',
-            width: 880,
-            margin: 'auto',
-            padding: 2,
-            items: {
+            items: [{
+                xtype: 'h3',
+                field: 'title',
+                align: 'center'
+            }, {
                 xtype: 'div',
-                field: 'rows',
-                css: {
-                    'margin-top': 5
-                },
+                overflow: 'auto',
+                width: 880,
+                margin: 'auto',
+                padding: 2,
                 items: {
-                    xtype: 'key',
-                    field: 'keys',
-                    click () {
-                        let et = cb.getCmp('edita_tecla'),
-                            cmp = cb.getCmp(this),
-                            record = cmp.getRecord(),
-                            keyboard = cb.getCmp('#keyboard');
+                    xtype: 'div',
+                    field: 'rows',
+                    css: {
+                        'margin-top': 5
+                    },
+                    items: {
+                        xtype: 'key',
+                        field: 'keys',
+                        click () {
+                            let et = cb.getCmp('edita_tecla'),
+                                cmp = cb.getCmp(this),
+                                record = cmp.getRecord(),
+                                keyboard = cb.getCmp('#keyboard');
 
-                        if (!record.special) {
-                            et.setRecord(cmp.getRecord());
-                            et.show();
-                            et.down('select[name="letter"]').val(record.code);
-                            et.down('input[name="code"]').val(record.code).trigger('focus');
-                            et.down('#key').html(record.letter);
-                            keyboard.down('button.btn-success').removeClass('btn-success');
-                            cmp.queryClose('button').addClass('btn-success');
+                            if (!record.special) {
+                                et.setRecord(cmp.getRecord());
+                                et.show();
+                                et.down('select[name="letter"]').val(record.code);
+                                et.down('input[name="code"]').val(record.code).trigger('focus');
+                                et.down('#key').html(record.letter);
+                                keyboard.down('button.btn-success').removeClass('btn-success');
+                                cmp.queryClose('button').addClass('btn-success');
+                            }
                         }
                     }
                 }
-            }
+            }]
         }
-    }]
+    }
 });
 
 cb.define({
@@ -370,17 +371,7 @@ cb.define({
         });
 
         ctr.socket.on('portConnected', (data) => {
-            // Renderiza información puerto abierto
-            let info = cb.getComponent('portInfo');
-            info.items.items = {
-                xtype: 'h3',
-                id: 'portinfo-msg',
-                glyphicon: 'flash',
-                text: data.manufacturer
-            };
-            info.render();
-            // Muestra cargando
-            cb.getCmp('#loading').show().down('#loading-msg').text(' ');
+            cb.getCmp('#loading').show().down('#loading-msg').text(data.manufacturer);
         });
 
         ctr.socket.on('fromArduino', data => {
@@ -389,10 +380,6 @@ cb.define({
                     ctr.selectedModel = data[1];
                     switch (data[1]) {
                         case 'elementalv1':
-                            cb.create({
-                                text: ' - Elemental V1',
-                                appendTo: '#portinfo-msg'
-                            });
                             cb.getCmp('#loading-msg').text('Elemental V1');
                             break;
                     }
@@ -403,6 +390,7 @@ cb.define({
                         // Pre-configura la tecla
                         let key = cb.getStore('models').getKey(ctr.selectedModel, data[1]);
                         if (key && key.code) {
+                            debugger;
                             cb.getStore('keycodesTail').addKey(key);
                         }
                     } else {
