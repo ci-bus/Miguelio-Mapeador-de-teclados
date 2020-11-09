@@ -532,5 +532,237 @@ export default {
                 position: 75 + 74
             }]
         }]
+    }, {
+        rows: [{
+            keys: [{
+                letter: ' ',
+                position: 150 + 0
+            }, {
+                letter: ' ',
+                position: 150 + 1
+            }, {
+                letter: ' ',
+                position: 150 + 2
+            }, {
+                letter: ' ',
+                position: 150 + 3
+            }, {
+                letter: ' ',
+                position: 150 + 4
+            }, {
+                letter: ' ',
+                position: 150 + 5
+            }, {
+                letter: ' ',
+                position: 150 + 6
+            }, {
+                letter: ' ',
+                position: 150 + 7
+            }, {
+                letter: ' ',
+                position: 150 + 8
+            }, {
+                letter: ' ',
+                position: 150 + 9
+            }, {
+                letter: ' ',
+                position: 150 + 10
+            }, {
+                letter: ' ',
+                position: 150 + 11
+            }, {
+                letter: ' ',
+                position: 150 + 12
+            }, {
+                letter: ' ',
+                position: 150 + 28,
+                u: 2
+            }, {
+                letter: ' ',
+                position: 150 + 14
+            }]
+        }, {
+            keys: [{
+                letter: ' ',
+                position: 150 + 15,
+                u: 1.5
+            }, {
+                letter: ' ',
+                position: 150 + 16
+            }, {
+                letter: ' ',
+                position: 150 + 17
+            }, {
+                letter: ' ',
+                position: 150 + 18
+            }, {
+                letter: ' ',
+                position: 150 + 19
+            }, {
+                letter: ' ',
+                position: 150 + 20
+            }, {
+                letter: ' ',
+                position: 150 + 21
+            }, {
+                letter: ' ',
+                position: 150 + 22
+            }, {
+                letter: ' ',
+                position: 150 + 23
+            }, {
+                letter: ' ',
+                position: 150 + 24
+            }, {
+                letter: ' ',
+                position: 150 + 25
+            }, {
+                letter: ' ',
+                position: 150 + 26
+            }, {
+                letter: ' ',
+                position: 150 + 27
+            }, {
+                letter: ' ',
+                position: 150 + 43,
+                u: 1.5
+            }, {
+                letter: ' ',
+                position: 150 + 29
+            }]
+        }, {
+            keys: [{
+                letter: ' ',
+                position: 150 + 30,
+                u: 1.75
+            }, {
+                letter: ' ',
+                position: 150 + 31
+            }, {
+                letter: ' ',
+                position: 150 + 32
+            }, {
+                letter: ' ',
+                position: 150 + 33
+            }, {
+                letter: ' ',
+                position: 150 + 34
+            }, {
+                letter: ' ',
+                position: 150 + 35
+            }, {
+                letter: ' ',
+                position: 150 + 36
+            }, {
+                letter: ' ',
+                position: 150 + 37
+            }, {
+                letter: ' ',
+                position: 150 + 38
+            }, {
+                letter: ' ',
+                position: 150 + 39
+            }, {
+                letter: ' ',
+                position: 150 + 40
+            }, {
+                letter: ' ',
+                position: 150 + 41
+            }, {
+                letter: ' ',
+                position: 150 + 42
+            }, {
+                u: 1.25,
+                special: 1
+            }, {
+                letter: ' ',
+                position: 150 + 44
+            }]
+        }, {
+            keys: [{
+                letter: ' ',
+                position: 150 + 45,
+                u: 1.25
+            }, {
+                letter: ' ',
+                position: 150 + 46
+            }, {
+                letter: ' ',
+                position: 150 + 47
+            }, {
+                letter: ' ',
+                position: 150 + 48
+            }, {
+                letter: ' ',
+                position: 150 + 49
+            }, {
+                letter: ' ',
+                position: 150 + 50
+            }, {
+                letter: ' ',
+                position: 150 + 51
+            }, {
+                letter: ' ',
+                position: 150 + 52
+            }, {
+                letter: ' ',
+                position: 150 + 53
+            }, {
+                letter: ' ',
+                position: 150 + 54
+            }, {
+                letter: ' ',
+                position: 150 + 55
+            }, {
+                letter: ' ',
+                position: 150 + 56
+            }, {
+                letter: ' ',
+                position: 150 + 57,
+                u: 1.75
+            }, {
+                letter: ' ',
+                position: 150 + 58
+            }, {
+                letter: ' ',
+                position: 150 + 59
+            }]
+        }, {
+            keys: [{
+                letter: ' ',
+                position: 150 + 60,
+                u: 1.25
+            }, {
+                letter: ' ',
+                position: 150 + 61,
+                u: 1.25
+            }, {
+                letter: ' ',
+                position: 150 + 62,
+                u: 1.25
+            }, {
+                letter: ' ',
+                position: 150 + 66,
+                u: 6.75
+            }, {
+                letter: ' ',
+                position: 150 + 69
+            }, {
+                letter: ' ',
+                position: 150 + 70
+            }, {
+                letter: ' ',
+                position: 150 + 71
+            }, {
+                letter: ' ',
+                position: 150 + 72
+            }, {
+                letter: ' ',
+                position: 150 + 73
+            }, {
+                letter: ' ',
+                position: 150 + 74
+            }]
+        }]
     }]
 };
