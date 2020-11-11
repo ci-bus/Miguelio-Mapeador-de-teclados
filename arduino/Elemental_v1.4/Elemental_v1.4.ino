@@ -1,5 +1,6 @@
 #include <Keyboard.h>
 #include <EEPROM.h>
+#include "MIDIUSB.h"
 
 /*  Multiplexor señal
  *  -----------------
@@ -118,6 +119,8 @@ int addr = 0;
 // Bloqueo de mayusculas
 bool bloqueo = false;
 
+// Teclas MIDI
+bool midi = false;
 
 void setup() {
   
@@ -255,6 +258,9 @@ void loop() {
                 changeMap(1);
                 addr += 75;
                 break;
+
+              case 23: // Tecla MIDI, no hace nada, esto se activa al soltar la tecla
+                break;
                 
               default: // Resto de teclas
                 // Si tiene bloqueo de mayusculas
@@ -265,10 +271,18 @@ void loop() {
                     code = 58;
                   }
                 }
+
+                // Si MIDI esta activo
+                if (midi) {
+                  // Pulsamos nota MIDI
+                  noteOn(0, addr, 127);
+                  MidiUSB.flush();
+                } else {
+                  // Pulsamos la tecla
+                  Keyboard.press(code);
+                  break;
+                }
                 
-                // Pulsamos la tecla
-                Keyboard.press(code);
-                break;
             }
 
             // La marcamos como pulsada
@@ -276,7 +290,7 @@ void loop() {
         }
         
       // Si la tecla NO está pulsada
-      } else {
+      } else { 
           
         // Si la tecla está marcada como pulsada
         if (matrizTeclasPulsadas[addr] == true) {
@@ -292,6 +306,10 @@ void loop() {
               changeMap(0);
               addr -= 75;
               break;
+
+            case 23: // Tecla MIDI
+              midi = !midi;
+              break;
               
             default: // Resto de teclas
               // Si tiene bloqueo de mayusculas
@@ -302,9 +320,15 @@ void loop() {
                   code = 58;
                 }
               }
-              
-              // Pulsamos la tecla
-              Keyboard.release(code);
+
+              // Si MIDI esta activo
+              if (midi) {
+                // Soltamos nota MIDI
+                noteOff(0, addr, 0); MidiUSB.flush();
+              } else {
+                // Soltamos la tecla
+                Keyboard.release(code);
+              }
               break;
           }
 
@@ -316,4 +340,20 @@ void loop() {
       cambiarFila(fila, LOW);
     }
   }
+}
+
+// First parameter is the event type (0x09 = note on, 0x08 = note off).
+// Second parameter is note-on/note-off, combined with the channel.
+// Channel can be anything between 0-15. Typically reported to the user as 1-16.
+// Third parameter is the note number (48 = middle C).
+// Fourth parameter is the velocity (64 = normal, 127 = fastest).
+
+void noteOn(byte channel, byte pitch, byte velocity) {
+  midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};
+  MidiUSB.sendMIDI(noteOn);
+}
+
+void noteOff(byte channel, byte pitch, byte velocity) {
+  midiEventPacket_t noteOff = {0x08, 0x80 | channel, pitch, velocity};
+  MidiUSB.sendMIDI(noteOff);
 }
