@@ -1688,7 +1688,7 @@ cb.define = function(obj, direct)
             }
             
             if (obj.xtype == 'view')
-            {           
+            {
                 if (obj.renderOnLoad !== false){
                     cb.render(obj);
                 }
@@ -1703,6 +1703,8 @@ cb.define = function(obj, direct)
                 }
             }
         }
+        // Return created object
+        return this.module[obj.xtype][obj.name];
     } else {
         console.error('Bad object to cb.define, xtype or name is missing', obj);
     }
