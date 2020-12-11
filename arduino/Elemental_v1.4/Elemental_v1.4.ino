@@ -252,7 +252,7 @@ void loop() {
               
               case 21: // Bloqueo de MAYUSCULAS, no hace nada, esto se activa al soltar la tecla
                 break;
-                
+
               case 22: // Tecla FN
                 // Cambia el mapeo del teclado
                 changeMap(1);
