@@ -4,7 +4,7 @@ export default [{
         keys: [{
             letter: 'ESC',
             position: 0,
-            code: 27
+            code: 177
         }, {
             letter: '1 !',
             position: 1,

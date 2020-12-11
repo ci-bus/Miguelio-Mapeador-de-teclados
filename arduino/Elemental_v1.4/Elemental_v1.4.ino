@@ -12,8 +12,9 @@ int pinZMulti = A7;
 /*  Funcion leer valor
  *  ------------------
  */
-int leerValor() {
-  return analogRead(pinZMulti);
+int leerValor()
+{
+    return analogRead(pinZMulti);
 }
 
 /*  Multiplexor config pin read
@@ -26,15 +27,14 @@ int pinesMulti[4] = {10, 16, 4, 5};
 /*  Funcion seleccion de columna
  *  ----------------------------
  */
-void activarColumna(int n) {
-  // Activa la columna
-  for (int j = 0; j < 4; j ++) {
-      digitalWrite(pinesMulti[j], bitRead(n, j));
-  }
+void activarColumna(int n)
+{
+    // Activa la columna
+    for (int j = 0; j < 4; j++)
+    {
+        digitalWrite(pinesMulti[j], bitRead(n, j));
+    }
 }
-
-
-
 
 /*  Pines filas
  *  -----------
@@ -52,61 +52,63 @@ int pinesFilas[9] = {18, 20, 3, 21, 9, 14, 15, 8, 2};
  *  Valor n: número de fila (0, 1, 2, 3, 4)
  *  Valor v: encender o apagar (HIGH, LOW)
  */
-void cambiarFila(int n, int v) {
-  switch (n) {
-    case 0: digitalWrite(18, v);
-      break;
-    case 1: digitalWrite(20, v);
-      digitalWrite(3, v);
-      break;
-    case 2: digitalWrite(21, v);
-      digitalWrite(9, v);
-      break;
-    case 3: digitalWrite(14, v);
-      digitalWrite(15, v);
-      digitalWrite(8, v);
-      break;
-    case 4: digitalWrite(2, v);
-      break;
-  }
+void cambiarFila(int n, int v)
+{
+    switch (n)
+    {
+    case 0:
+        digitalWrite(18, v);
+        break;
+    case 1:
+        digitalWrite(20, v);
+        digitalWrite(3, v);
+        break;
+    case 2:
+        digitalWrite(21, v);
+        digitalWrite(9, v);
+        break;
+    case 3:
+        digitalWrite(14, v);
+        digitalWrite(15, v);
+        digitalWrite(8, v);
+        break;
+    case 4:
+        digitalWrite(2, v);
+        break;
+    }
 }
-
 
 /*  Array con la configuración de teclas
  *  ------------------------------------
  */
 int teclas[150] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
-
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /*  Array para controlar las teclas pulsadas
  *  ----------------------------------------
  */
 bool matrizTeclasPulsadas[150] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
-
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // Variables temporales
 int mapeo = 0;
@@ -122,224 +124,263 @@ bool bloqueo = false;
 // Teclas MIDI
 bool midi = false;
 
-void setup() {
-  
-  // Multiplex selección columna
-  for (int i = 0; i < 4; i++) {
-    pinMode(pinesMulti[i], OUTPUT);
-  }
-  
-  // Valor lectura
-  pinMode(pinZMulti, INPUT);
+void setup()
+{
 
-  // Pines filas
-  for (int i = 0; i < 9; i++) {
-    pinMode(pinesFilas[i], OUTPUT);
-  }
+    // Multiplex selección columna
+    for (int i = 0; i < 4; i++)
+    {
+        pinMode(pinesMulti[i], OUTPUT);
+    }
 
-  // Lee valores EEPROM
-  loadKeycodes();
+    // Valor lectura
+    pinMode(pinZMulti, INPUT);
 
-  // Setea mapeo
-  mapeo = 0;
-  
-  Serial.begin(9600);
+    // Pines filas
+    for (int i = 0; i < 9; i++)
+    {
+        pinMode(pinesFilas[i], OUTPUT);
+    }
+
+    // Lee valores EEPROM
+    loadKeycodes();
+
+    // Setea mapeo
+    mapeo = 0;
+
+    Serial.begin(9600);
 }
-
 
 // Funcion para coger partes de un string
 String getValue(String data, char separator, int index)
 {
     int found = 0;
-    int strIndex[] = { 0, -1 };
+    int strIndex[] = {0, -1};
     int maxIndex = data.length() - 1;
 
-    for (int i = 0; i <= maxIndex && found <= index; i++) {
-        if (data.charAt(i) == separator || i == maxIndex) {
+    for (int i = 0; i <= maxIndex && found <= index; i++)
+    {
+        if (data.charAt(i) == separator || i == maxIndex)
+        {
             found++;
             strIndex[0] = strIndex[1] + 1;
-            strIndex[1] = (i == maxIndex) ? i+1 : i;
+            strIndex[1] = (i == maxIndex) ? i + 1 : i;
         }
     }
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
 // Lee la configuracion de teclas guardadas en memoria EEPROM
-void loadKeycodes() {
-  for (addr = 0; addr < 150; addr ++) {
-    teclas[addr] = EEPROM.read(addr);
-  }
+void loadKeycodes()
+{
+    for (addr = 0; addr < 150; addr++)
+    {
+        teclas[addr] = EEPROM.read(addr);
+    }
 }
 
 // Cambiar configuracion tecla
-void changeKeycode(int addr, int code) {
-  EEPROM.update(addr, code);
-  teclas[addr] = code;
+void changeKeycode(int addr, int code)
+{
+    EEPROM.update(addr, code);
+    teclas[addr] = code;
 }
 
 // Cambio de mapeo para tecla fn
-void changeMap(int val) {
-  
-  // Seguridad para que no queden teclas pulsadas al cambiar de mapeo
-  for (int a = mapeo * 75; a < mapeo * 75 + 75; a ++) {
-    // La desmarcamos como pulsada
-    matrizTeclasPulsadas[a] = false;
-  }
+void changeMap(int val)
+{
 
-  // Soltamos todas las teclas
-  Keyboard.releaseAll();
-  
-  // Cambio de mapeo
-  mapeo = val;
+    // Seguridad para que no queden teclas pulsadas al cambiar de mapeo
+    for (int a = mapeo * 75; a < mapeo * 75 + 75; a++)
+    {
+        // La desmarcamos como pulsada
+        matrizTeclasPulsadas[a] = false;
+    }
+
+    // Soltamos todas las teclas
+    Keyboard.releaseAll();
+
+    // Cambio de mapeo
+    mapeo = val;
 }
 
+void loop()
+{
 
-void loop() {
+    // Comunicacion con el software
+    if (Serial.available())
+    {
+        String msg = Serial.readString();
 
-  // Comunicacion con el software
-  if (Serial.available()) {
-    String msg = Serial.readString();
-    
-    // Mensaje modelo del teclado
-    if (msg == "who are you?") {
-      Serial.println("model:elementalv1");
+        // Mensaje modelo del teclado
+        if (msg == "who are you?")
+        {
+            Serial.println("model:elementalv1");
 
-    // Coger configuraciones de teclas
-    } else if (msg == "get") {
-      for (addr = 0; addr < 150; addr ++) {
-        code = EEPROM.read(addr);
-        Serial.println("keycode:" + (String) addr + ":" + (String) code);
-      }
-      Serial.print("get:ok");
+            // Coger configuraciones de teclas
+        }
+        else if (msg == "get")
+        {
+            for (addr = 0; addr < 150; addr++)
+            {
+                code = EEPROM.read(addr);
+                Serial.println("keycode:" + (String)addr + ":" + (String)code);
+            }
+            Serial.print("get:ok");
 
-    // Configurar teclas
-    } else if (getValue(msg, ':', 0) == "put") {
-      addr = getValue(msg, ':', 1).toInt();
-      code = getValue(msg, ':', 2).toInt();
-      changeKeycode(addr, code);
-      Serial.print("put:ok");
+            // Configurar teclas
+        }
+        else if (getValue(msg, ':', 0) == "put")
+        {
+            addr = getValue(msg, ':', 1).toInt();
+            code = getValue(msg, ':', 2).toInt();
+            changeKeycode(addr, code);
+            Serial.print("put:ok");
+        }
     }
-  }
- 
-  // Recorre las columnas
-  for (columna = 0; columna < 15; columna ++) {
-    
-    // Activar la columna
-    activarColumna(columna);
 
-    // Recorre las filas
-    for (fila = 0; fila < 5; fila ++) {
+    // Recorre las columnas
+    for (columna = 0; columna < 15; columna++)
+    {
 
-      // Activa la fila
-      cambiarFila(fila, HIGH);
+        // Activar la columna
+        activarColumna(columna);
 
-      // Lee valor
-      val = leerValor();
+        // Recorre las filas
+        for (fila = 0; fila < 5; fila++)
+        {
 
-      // Calcula la direccion de la tecla
-      addr = mapeo * 75 + fila * 15 + columna;
-      
-      // Codigo de la tecla
-      code = teclas[addr];
-      
-      // Si la tecla esta pulsada, este valor minimo dependera de la resistencia
-      if (val > 10) {
+            // Activa la fila
+            cambiarFila(fila, HIGH);
 
-        // Si la tecla NO esta marcada como pulsada
-        if (matrizTeclasPulsadas[addr] == false) {
+            // Lee valor
+            val = leerValor();
 
-            switch (code) {
-              
-              case 21: // Bloqueo de MAYUSCULAS, no hace nada, esto se activa al soltar la tecla
-                break;
+            // Calcula la direccion de la tecla
+            addr = mapeo * 75 + fila * 15 + columna;
 
-              case 22: // Tecla FN
-                // Cambia el mapeo del teclado
-                changeMap(1);
-                addr += 75;
-                break;
+            // Codigo de la tecla
+            code = teclas[addr];
 
-              case 23: // Tecla MIDI, no hace nada, esto se activa al soltar la tecla
-                break;
-                
-              default: // Resto de teclas
-                // Si tiene bloqueo de mayusculas
-                if (bloqueo) {
-                  if (code >= 140 && code <= 165) {
-                    code = code - 75;
-                  } else if (code == 187) {
-                    code = 58;
-                  }
+            // Si la tecla esta pulsada, este valor minimo dependera de la resistencia
+            if (val > 15)
+            {
+
+                // Si la tecla NO esta marcada como pulsada
+                if (matrizTeclasPulsadas[addr] == false)
+                {
+
+                    switch (code)
+                    {
+
+                    case 21: // Bloqueo de MAYUSCULAS, no hace nada, esto se activa al soltar la tecla
+                        break;
+
+                    case 22: // Tecla FN
+                        // Cambia el mapeo del teclado
+                        changeMap(1);
+                        addr += 75;
+                        break;
+
+                    case 23: // Tecla MIDI, no hace nada, esto se activa al soltar la tecla
+                        break;
+
+                    default: // Resto de teclas
+                        // Si tiene bloqueo de mayusculas
+                        if (bloqueo)
+                        {
+                            if (code >= 140 && code <= 165)
+                            {
+                                code = code - 75;
+                            }
+                            else if (code == 187)
+                            {
+                                code = 58;
+                            }
+                        }
+
+                        // Si MIDI esta activo
+                        if (midi)
+                        {
+                            // Pulsamos nota MIDI
+                            noteOn(0, addr, 127);
+                            MidiUSB.flush();
+                        }
+                        else
+                        {
+                            // Pulsamos la tecla
+                            Keyboard.press(code);
+                            break;
+                        }
+                    }
+
+                    // La marcamos como pulsada
+                    matrizTeclasPulsadas[addr] = true;
                 }
 
-                // Si MIDI esta activo
-                if (midi) {
-                  // Pulsamos nota MIDI
-                  noteOn(0, addr, 127);
-                  MidiUSB.flush();
-                } else {
-                  // Pulsamos la tecla
-                  Keyboard.press(code);
-                  break;
+                // Si la tecla NO está pulsada
+            }
+            else if (val < 5)
+            {
+
+                // Si la tecla está marcada como pulsada
+                if (matrizTeclasPulsadas[addr] == true)
+                {
+
+                    switch (code)
+                    {
+
+                    case 21: // Bloqueo de MAYUSCULAS
+                        bloqueo = !bloqueo;
+                        break;
+
+                    case 22: // Tecla FN
+                        // Cambia el mapeo del teclado
+                        changeMap(0);
+                        addr -= 75;
+                        break;
+
+                    case 23: // Tecla MIDI
+                        midi = !midi;
+                        break;
+
+                    default: // Resto de teclas
+                        // Si tiene bloqueo de mayusculas
+                        if (bloqueo)
+                        {
+                            if (code >= 140 && code <= 165)
+                            {
+                                code = code - 75;
+                            }
+                            else if (code == 187)
+                            {
+                                code = 58;
+                            }
+                        }
+
+                        // Si MIDI esta activo
+                        if (midi)
+                        {
+                            // Soltamos nota MIDI
+                            noteOff(0, addr, 0);
+                            MidiUSB.flush();
+                        }
+                        else
+                        {
+                            // Soltamos la tecla
+                            Keyboard.release(code);
+                        }
+                        break;
+                    }
+
+                    // La desmarcamos como pulsada
+                    matrizTeclasPulsadas[addr] = false;
                 }
-                
             }
 
-            // La marcamos como pulsada
-            matrizTeclasPulsadas[addr] = true;
+            cambiarFila(fila, LOW);
         }
-        
-      // Si la tecla NO está pulsada
-      } else { 
-          
-        // Si la tecla está marcada como pulsada
-        if (matrizTeclasPulsadas[addr] == true) {
-
-          switch (code) {
-              
-            case 21: // Bloqueo de MAYUSCULAS
-              bloqueo = !bloqueo;
-              break;
-              
-            case 22: // Tecla FN
-              // Cambia el mapeo del teclado
-              changeMap(0);
-              addr -= 75;
-              break;
-
-            case 23: // Tecla MIDI
-              midi = !midi;
-              break;
-              
-            default: // Resto de teclas
-              // Si tiene bloqueo de mayusculas
-              if (bloqueo) {
-                if (code >= 140 && code <= 165) {
-                  code = code - 75;
-                } else if (code == 187) {
-                  code = 58;
-                }
-              }
-
-              // Si MIDI esta activo
-              if (midi) {
-                // Soltamos nota MIDI
-                noteOff(0, addr, 0); MidiUSB.flush();
-              } else {
-                // Soltamos la tecla
-                Keyboard.release(code);
-              }
-              break;
-          }
-
-          // La desmarcamos como pulsada
-          matrizTeclasPulsadas[addr] = false;
-        }
-      }
-      
-      cambiarFila(fila, LOW);
     }
-  }
 }
 
 // First parameter is the event type (0x09 = note on, 0x08 = note off).
@@ -348,12 +389,14 @@ void loop() {
 // Third parameter is the note number (48 = middle C).
 // Fourth parameter is the velocity (64 = normal, 127 = fastest).
 
-void noteOn(byte channel, byte pitch, byte velocity) {
-  midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};
-  MidiUSB.sendMIDI(noteOn);
+void noteOn(byte channel, byte pitch, byte velocity)
+{
+    midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};
+    MidiUSB.sendMIDI(noteOn);
 }
 
-void noteOff(byte channel, byte pitch, byte velocity) {
-  midiEventPacket_t noteOff = {0x08, 0x80 | channel, pitch, velocity};
-  MidiUSB.sendMIDI(noteOff);
+void noteOff(byte channel, byte pitch, byte velocity)
+{
+    midiEventPacket_t noteOff = {0x08, 0x80 | channel, pitch, velocity};
+    MidiUSB.sendMIDI(noteOff);
 }
