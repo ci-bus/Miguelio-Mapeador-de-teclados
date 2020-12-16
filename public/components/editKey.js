@@ -28,6 +28,7 @@ export default {
                         input = cmp.queryClose('input'),
                         option = cmp.down('option:selected');
                     if (cmp.getValue()) {
+                        console.log(cmp.getValue());
                         input.val(cmp.getValue());
                     }
                     cmp.queryClose('button').text(
@@ -49,7 +50,14 @@ export default {
                 placeholder: 'Código',
                 padding: 5,
                 keyup () {
-                    cb.getCmp(this).queryClose('select').val(cb.getCmp(this).getValue()).trigger('change');
+                    let cmp = cb.getCmp(this),
+                        code = cmp.getValue(),
+                        select = cmp.queryClose('select');
+                    select.val(code);
+                    let option = select.down('option:selected');
+                    cmp.queryClose('button').text(
+                        option ? option.text() : code
+                    );
                 }
             }]
         }
