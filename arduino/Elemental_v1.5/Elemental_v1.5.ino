@@ -118,9 +118,6 @@ int val = 0;
 int code = 0;
 int addr = 0;
 
-// Bloqueo de mayusculas
-bool bloqueo = false;
-
 // Teclas MIDI
 bool midi = false;
 
@@ -148,7 +145,7 @@ void setup()
     // Setea mapeo
     mapeo = 0;
 
-    // Inicializa puerto serial para comunicacion con el software
+    // Inicializa puerto serial para comunicaciones con el software
     Serial.begin(9600);
 }
 
@@ -171,19 +168,40 @@ String getValue(String data, char separator, int index)
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+// Funcion para leer numeros de 2 bytes
+int EEPROMReadInt(int addr)
+{
+    addr = addr * 2;
+    int byte1 = EEPROM.read(addr);
+    int byte2 = EEPROM.read(addr + 1);
+
+    return ((byte1 << 0) & 0xFF) + ((byte2 << 8) & 0xFFFF);
+}
+
+// Funcion para guardar numeros de 2 bytes
+void EEPROMWriteInt(int addr, int val)
+{
+    addr = addr * 2;
+    byte byte1 = (val & 0xFF);
+    byte byte2 = ((val >> 8) & 0xFF);
+
+    EEPROM.update(addr, byte1);
+    EEPROM.update(addr + 1, byte2);
+}
+
 // Lee la configuracion de teclas guardadas en memoria EEPROM
 void loadKeycodes()
 {
     for (addr = 0; addr < 150; addr++)
     {
-        teclas[addr] = EEPROM.read(addr);
+        teclas[addr] = EEPROMReadInt(addr);
     }
 }
 
 // Cambiar configuracion tecla
 void changeKeycode(int addr, int code)
 {
-    EEPROM.update(addr, code);
+    EEPROMWriteInt(addr, code);
     teclas[addr] = code;
 }
 
@@ -274,9 +292,6 @@ void loop()
                     switch (code)
                     {
 
-                    case 21: // Bloqueo de MAYUSCULAS, no hace nada, esto se activa al soltar la tecla
-                        break;
-
                     case 22: // Tecla FN
                         // Cambia el mapeo del teclado
                         changeMap(1);
@@ -287,18 +302,6 @@ void loop()
                         break;
 
                     default: // Resto de teclas
-                        // Si tiene bloqueo de mayusculas
-                        if (bloqueo)
-                        {
-                            if (code >= 140 && code <= 165)
-                            {
-                                code = code - 75;
-                            }
-                            else if (code == 187)
-                            {
-                                code = 58;
-                            }
-                        }
 
                         // Si MIDI esta activo
                         if (midi)
@@ -308,9 +311,10 @@ void loop()
                             MidiUSB.flush();
                         }
                         // Teclas multimedia
-                        else if (code >= 300) {
-                          Keyboard.press_direct(code - 300);
-                          Keyboard.releaseAll();
+                        else if (code >= 300)
+                        {
+                            Keyboard.press_direct(code - 300);
+                            Keyboard.releaseAll();
                         }
                         else // Si es una tecla común
                         {
@@ -336,10 +340,6 @@ void loop()
                     switch (code)
                     {
 
-                    case 21: // Bloqueo de MAYUSCULAS
-                        bloqueo = !bloqueo;
-                        break;
-
                     case 22: // Tecla FN
                         // Cambia el mapeo del teclado
                         changeMap(0);
@@ -351,18 +351,6 @@ void loop()
                         break;
 
                     default: // Resto de teclas
-                        // Si tiene bloqueo de mayusculas
-                        if (bloqueo)
-                        {
-                            if (code >= 140 && code <= 165)
-                            {
-                                code = code - 75;
-                            }
-                            else if (code == 187)
-                            {
-                                code = 58;
-                            }
-                        }
 
                         // Si MIDI esta activo
                         if (midi)
@@ -372,8 +360,9 @@ void loop()
                             MidiUSB.flush();
                         }
                         // Teclas multimedia
-                        else if (code >= 300) {
-                          Keyboard.release_direct(code - 300);
+                        else if (code >= 300)
+                        {
+                            Keyboard.release_direct(code - 300);
                         }
                         else
                         {

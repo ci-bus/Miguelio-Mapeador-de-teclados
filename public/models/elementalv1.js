@@ -132,7 +132,7 @@ export default [{
             letter: 'MAYUS',
             position: 30,
             u: 1.75,
-            code: 21
+            code: 193
         }, {
             letter: 'A',
             position: 31,
@@ -304,44 +304,57 @@ export default [{
     title: 'FN',
     rows: [{
         keys: [{
-            letter: ' ',
-            position: 75 + 0
+            letter: 'º \\',
+            position: 75 + 0,
+            code: 236
         }, {
-            letter: ' ',
-            position: 75 + 1
+            letter: 'F1',
+            position: 75 + 1,
+            code: 194
         }, {
-            letter: ' ',
-            position: 75 + 2
+            letter: 'F2',
+            position: 75 + 2,
+            code: 195
         }, {
-            letter: ' ',
-            position: 75 + 3
+            letter: 'F3',
+            position: 75 + 3,
+            code: 196
         }, {
-            letter: ' ',
-            position: 75 + 4
+            letter: 'F4',
+            position: 75 + 4,
+            code: 197
         }, {
-            letter: ' ',
-            position: 75 + 5
+            letter: 'F5',
+            position: 75 + 5,
+            code: 198
         }, {
-            letter: ' ',
-            position: 75 + 6
+            letter: 'F6',
+            position: 75 + 6,
+            code: 199
         }, {
-            letter: ' ',
-            position: 75 + 7
+            letter: 'F7',
+            position: 75 + 7,
+            code: 200
         }, {
-            letter: ' ',
-            position: 75 + 8
+            letter: 'F8',
+            position: 75 + 8,
+            code: 201
         }, {
-            letter: ' ',
-            position: 75 + 9
+            letter: 'F9',
+            position: 75 + 9,
+            code: 202
         }, {
-            letter: ' ',
-            position: 75 + 10
+            letter: 'F10',
+            position: 75 + 10,
+            code: 203
         }, {
-            letter: ' ',
-            position: 75 + 11
+            letter: 'F11',
+            position: 75 + 11,
+            code: 204
         }, {
-            letter: ' ',
-            position: 75 + 12
+            letter: 'F12',
+            position: 75 + 12,
+            code: 205
         }, {
             letter: ' ',
             position: 75 + 28,

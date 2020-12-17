@@ -43,7 +43,8 @@ cb.define({
                     ctr.socket.emit('getKeyCodes');
                     break;
                 case 'keycode': 
-                    if (parseInt(data[2]) === 0 || parseInt(data[2]) == 255) {
+                    console.log('keycode', parseInt(data[2]));
+                    if (parseInt(data[2]) <= 0 || parseInt(data[2]) == 255) {
                         // Pre-configura la tecla
                         let key = modelsStore.getKey(ctr.selectedModel, data[1]);
                         if (key && key.code) {
