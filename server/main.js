@@ -69,6 +69,16 @@ io.on('connection', (socket) => {
         app.arduinoSerialPort.write("get");
     });
 
+    socket.on('enableTestMode', () => {
+        // Activar el modo de pruebas para probar los interruptores
+        app.arduinoSerialPort.write("modoTest:true");
+    });
+
+    socket.on('disableTestMode', () => {
+        // Desactivar el modo de pruebas para probar los interruptores
+        app.arduinoSerialPort.write("modoTest:false");
+    });
+
     socket.on('putKeyCode', (position, keycode) => {
         app.arduinoSerialPort.write("put:"+position+":"+keycode);
     });

@@ -2,7 +2,7 @@ import keyCmp from './key.js';
 
 export default {
     xtype: 'div',
-    id: 'keyboard',
+    id: 'testKeys',
     renderTo: '#content',
     items: {
         xtype: 'div',
@@ -13,9 +13,12 @@ export default {
         css: {
             'padding-bottom': 50
         },
+        alterdata (data) {
+            if (data.title != "FN") return data;
+        },
         items: [{
             xtype: 'h3',
-            field: 'title',
+            text: 'Presione las teclas para comprobar su funcionamiento',
             align: 'center'
         }, {
             xtype: 'div',

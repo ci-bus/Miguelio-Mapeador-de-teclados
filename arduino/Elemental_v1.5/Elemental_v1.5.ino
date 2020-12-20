@@ -121,6 +121,9 @@ int addr = 0;
 // Teclas MIDI
 bool midi = false;
 
+// Modo test para probar switches
+bool modoTest = false;
+
 void setup()
 {
 
@@ -147,6 +150,192 @@ void setup()
 
     // Inicializa puerto serial para comunicaciones con el software
     Serial.begin(9600);
+}
+
+void loop()
+{
+
+    // Comunicacion con el software
+    if (Serial.available())
+    {
+        String msg = Serial.readString();
+
+        // Mensaje modelo del teclado
+        if (msg == "who are you?")
+        {
+            Serial.println("model:elementalv1");
+        }
+        // Coger configuraciones de teclas
+        else if (msg == "get")
+        {
+            for (addr = 0; addr < 150; addr++)
+            {
+                code = teclas[addr];
+                Serial.println("keycode:" + (String)addr + ":" + (String)code);
+            }
+            Serial.print("get:ok");
+        }
+        // Configurar teclas
+        else if (getValue(msg, ':', 0) == "put")
+        {
+            addr = getValue(msg, ':', 1).toInt();
+            code = getValue(msg, ':', 2).toInt();
+            changeKeycode(addr, code);
+            Serial.print("put:ok");
+        }
+        // Activar modo test switches
+        else if (getValue(msg, ':', 0) == "modoTest")
+        {
+            if (getValue(msg, ':', 1) == "true")
+            {
+                modoTest = true;
+            }
+            else
+            {
+                modoTest = false;
+            }
+            Keyboard.releaseAll();
+        }
+        // Probar un keycode
+        else if (getValue(msg, ':', 0) == "keycodeTest")
+        {
+            code = getValue(msg, ':', 1).toInt();
+            Keyboard.press_direct(code);
+            delay(50);
+            Keyboard.release_direct(code);
+        }
+    }
+
+    // Recorre las columnas
+    for (columna = 0; columna < 15; columna++)
+    {
+
+        // Activar la columna
+        activarColumna(columna);
+
+        // Recorre las filas
+        for (fila = 0; fila < 5; fila++)
+        {
+
+            // Activa la fila
+            cambiarFila(fila, HIGH);
+
+            // Lee valor
+            val = leerValor();
+
+            // Calcula la direccion de la tecla
+            addr = mapeo * 75 + fila * 15 + columna;
+
+            // Codigo de la tecla
+            code = teclas[addr];
+
+            // Si la tecla esta pulsada, este valor minimo dependera de la resistencia
+            if (val > 15)
+            {
+                // Si la tecla NO esta marcada como pulsada
+                if (matrizTeclasPulsadas[addr] == false)
+                {
+                    if (modoTest)
+                    {
+                        Serial.println("modoTest:" + (String)columna + ":" + (String)fila);
+                    }
+                    else
+                    {
+
+                        switch (code)
+                        {
+
+                        case 22: // Tecla FN
+                            // Cambia el mapeo del teclado
+                            changeMap(1);
+                            addr += 75;
+                            break;
+
+                        case 23: // Tecla MIDI, no hace nada, esto se activa al soltar la tecla
+                            break;
+
+                        default: // Resto de teclas
+
+                            // Si MIDI esta activo
+                            if (midi)
+                            {
+                                // Pulsamos nota MIDI
+                                noteOn(0, addr, 127);
+                                MidiUSB.flush();
+                            }
+                            // Teclas multimedia
+                            else if (code >= 300)
+                            {
+                                Keyboard.press_direct(code - 300);
+                                Keyboard.releaseAll();
+                            }
+                            else // Si es una tecla común
+                            {
+                                // Pulsamos la tecla
+                                Keyboard.press(code);
+                            }
+                            break;
+                        }
+                    }
+
+                    // La marcamos como pulsada
+                    matrizTeclasPulsadas[addr] = true;
+                }
+            }
+            // Si la tecla NO está pulsada
+            else if (val < 2)
+            {
+
+                // Si la tecla está marcada como pulsada
+                if (matrizTeclasPulsadas[addr] == true)
+                {
+
+                    if (!modoTest)
+                    {
+                        switch (code)
+                        {
+
+                        case 22: // Tecla FN
+                            // Cambia el mapeo del teclado
+                            changeMap(0);
+                            addr -= 75;
+                            break;
+
+                        case 23: // Tecla MIDI
+                            midi = !midi;
+                            break;
+
+                        default: // Resto de teclas
+
+                            // Si MIDI esta activo
+                            if (midi)
+                            {
+                                // Soltamos nota MIDI
+                                noteOff(0, addr, 0);
+                                MidiUSB.flush();
+                            }
+                            // Teclas multimedia
+                            else if (code >= 300)
+                            {
+                                Keyboard.release_direct(code - 300);
+                            }
+                            else
+                            {
+                                // Soltamos la tecla
+                                Keyboard.release(code);
+                            }
+                            break;
+                        }
+                    }
+
+                    // La desmarcamos como pulsada
+                    matrizTeclasPulsadas[addr] = false;
+                }
+            }
+
+            cambiarFila(fila, LOW);
+        }
+    }
 }
 
 // Funcion para coger partes de un string
@@ -223,171 +412,7 @@ void changeMap(int val)
     mapeo = val;
 }
 
-void loop()
-{
-
-    // Comunicacion con el software
-    if (Serial.available())
-    {
-        String msg = Serial.readString();
-
-        // Mensaje modelo del teclado
-        if (msg == "who are you?")
-        {
-            Serial.println("model:elementalv1");
-
-            // Coger configuraciones de teclas
-        }
-        else if (msg == "get")
-        {
-            for (addr = 0; addr < 150; addr++)
-            {
-                code = teclas[addr];
-                Serial.println("keycode:" + (String)addr + ":" + (String)code);
-            }
-            Serial.print("get:ok");
-
-            // Configurar teclas
-        }
-        else if (getValue(msg, ':', 0) == "put")
-        {
-            addr = getValue(msg, ':', 1).toInt();
-            code = getValue(msg, ':', 2).toInt();
-            changeKeycode(addr, code);
-            Serial.print("put:ok");
-        }
-    }
-
-    // Recorre las columnas
-    for (columna = 0; columna < 15; columna++)
-    {
-
-        // Activar la columna
-        activarColumna(columna);
-
-        // Recorre las filas
-        for (fila = 0; fila < 5; fila++)
-        {
-
-            // Activa la fila
-            cambiarFila(fila, HIGH);
-
-            // Lee valor
-            val = leerValor();
-
-            // Calcula la direccion de la tecla
-            addr = mapeo * 75 + fila * 15 + columna;
-
-            // Codigo de la tecla
-            code = teclas[addr];
-
-            // Si la tecla esta pulsada, este valor minimo dependera de la resistencia
-            if (val > 15)
-            {
-
-                // Si la tecla NO esta marcada como pulsada
-                if (matrizTeclasPulsadas[addr] == false)
-                {
-
-                    switch (code)
-                    {
-
-                    case 22: // Tecla FN
-                        // Cambia el mapeo del teclado
-                        changeMap(1);
-                        addr += 75;
-                        break;
-
-                    case 23: // Tecla MIDI, no hace nada, esto se activa al soltar la tecla
-                        break;
-
-                    default: // Resto de teclas
-
-                        // Si MIDI esta activo
-                        if (midi)
-                        {
-                            // Pulsamos nota MIDI
-                            noteOn(0, addr, 127);
-                            MidiUSB.flush();
-                        }
-                        // Teclas multimedia
-                        else if (code >= 300)
-                        {
-                            Keyboard.press_direct(code - 300);
-                            Keyboard.releaseAll();
-                        }
-                        else // Si es una tecla común
-                        {
-                            // Pulsamos la tecla
-                            Keyboard.press(code);
-                            break;
-                        }
-                    }
-
-                    // La marcamos como pulsada
-                    matrizTeclasPulsadas[addr] = true;
-                }
-
-                // Si la tecla NO está pulsada
-            }
-            else if (val < 5)
-            {
-
-                // Si la tecla está marcada como pulsada
-                if (matrizTeclasPulsadas[addr] == true)
-                {
-
-                    switch (code)
-                    {
-
-                    case 22: // Tecla FN
-                        // Cambia el mapeo del teclado
-                        changeMap(0);
-                        addr -= 75;
-                        break;
-
-                    case 23: // Tecla MIDI
-                        midi = !midi;
-                        break;
-
-                    default: // Resto de teclas
-
-                        // Si MIDI esta activo
-                        if (midi)
-                        {
-                            // Soltamos nota MIDI
-                            noteOff(0, addr, 0);
-                            MidiUSB.flush();
-                        }
-                        // Teclas multimedia
-                        else if (code >= 300)
-                        {
-                            Keyboard.release_direct(code - 300);
-                        }
-                        else
-                        {
-                            // Soltamos la tecla
-                            Keyboard.release(code);
-                        }
-                        break;
-                    }
-
-                    // La desmarcamos como pulsada
-                    matrizTeclasPulsadas[addr] = false;
-                }
-            }
-
-            cambiarFila(fila, LOW);
-        }
-    }
-}
-
-// First parameter is the event type (0x09 = note on, 0x08 = note off).
-// Second parameter is note-on/note-off, combined with the channel.
-// Channel can be anything between 0-15. Typically reported to the user as 1-16.
-// Third parameter is the note number (48 = middle C).
-// Fourth parameter is the velocity (64 = normal, 127 = fastest).
-
+// Funciones MIDI
 void noteOn(byte channel, byte pitch, byte velocity)
 {
     midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};

@@ -22,6 +22,17 @@ export default cb.define({
     setTitle (model, title) {
         this.getData(model)[0].title = title;
     },
+    clickedKey (model, columna, fila) {
+        let allKeys = this.getAllKeys(model),
+            key = allKeys.find(k=>k.columna==columna && k.fila==fila);
+        if (key) {
+            key.clicked = true;
+            this.storelink(model);
+        }
+    },
+    resetAllClickedKeys (model) {
+        this.getAllKeys(model).forEach(k=>delete k.clicked);
+    },
     data: {
         elementalv1
     }

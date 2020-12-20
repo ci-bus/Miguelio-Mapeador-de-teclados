@@ -25,6 +25,23 @@ export default cb.define({
                         location.reload();
                     }
                 }]
+            }, {
+                xtype: 'navbar',
+                type: 'right',
+                id: 'menuOpciones',
+                display: 'none',
+                items: [{
+                    xtype: 'button',
+                    type: 'secondary',
+                    margin: '8px 10px 0',
+                    glyphicon: 'check',
+                    text: ' Modo prueba',
+                    click () {
+                        this.active = !this.active;
+                        cb.getController('mapeador').testMode(this.active);
+                        cb.getCmp(this).toggleClass('btn-success');
+                    }
+                }]
             }]
         }]
     }]

@@ -11,6 +11,7 @@ import modelsStore from './stores/models.js';
 import headerCmp from './components/header.js';
 import editKeyCmp from './components/editKey.js';
 import keyboard from './components/keyboard.js';
+import testKeys from './components/testKeys.js';
 
 cb.define({
     xtype: 'controller',
@@ -43,8 +44,7 @@ cb.define({
                     ctr.socket.emit('getKeyCodes');
                     break;
                 case 'keycode': 
-                    console.log('keycode', parseInt(data[2]));
-                    if (parseInt(data[2]) <= 0 || parseInt(data[2]) == 255) {
+                    if (parseInt(data[2]) < 0) {
                         // Pre-configura la tecla
                         let key = modelsStore.getKey(ctr.selectedModel, data[1]);
                         if (key && key.code) {
@@ -66,10 +66,14 @@ cb.define({
                         cb.create(keyboard.setModelRecord(ctr.selectedModel));
                         cb.getCmp('#loading').hide();
                         cb.getCmp('#content').show();
+                        cb.getCmp('#menuOpciones').show();
                     }
                     break;
                 case 'put':
                     keycodesTailStore.proccessTail();
+                    break;
+                case 'modoTest':
+                    modelsStore.clickedKey(ctr.selectedModel, data[1], data[2]);
                     break;
             }
         });
@@ -130,5 +134,16 @@ cb.define({
                 items: editKeyCmp
             }]
         });
+    },
+
+    testMode (active) {
+        let ctr = this;
+        ctr.socket.emit(active ? 'enableTestMode' : 'disableTestMode');
+        if (active) {
+            cb.create(testKeys.setModelRecord(ctr.selectedModel));
+        } else {
+            modelsStore.resetAllClickedKeys(ctr.selectedModel);
+            cb.create(keyboard.setModelRecord(ctr.selectedModel));
+        }
     }
 });

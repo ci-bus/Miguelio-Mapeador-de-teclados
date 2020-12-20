@@ -15,7 +15,9 @@ export default cb.define({
             if (record.special === 1) {
                 opt.visibility = 'hidden';
             }
-            if (record.buttonType) {
+            if (record.clicked) {
+                opt.type = 'success';
+            } else if (record.buttonType) {
                 opt.type = record.buttonType;
             }
             return record;
