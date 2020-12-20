@@ -1,5 +1,6 @@
 export default [{
     title: 'Elemental V1',
+    keyCount: 75,
     rows: [{
         keys: [{
             letter: 'ESC',

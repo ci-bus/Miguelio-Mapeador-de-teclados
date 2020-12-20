@@ -28,7 +28,6 @@ export default {
                         input = cmp.queryClose('input'),
                         option = cmp.down('option:selected');
                     if (cmp.getValue()) {
-                        console.log(cmp.getValue());
                         input.val(cmp.getValue());
                     }
                     cmp.queryClose('button').text(
@@ -69,15 +68,40 @@ export default {
             glyphicon: 'ok',
             text: ' Aceptar',
             click () {
-                let et = cb.getCmp(this).up('row'),
+                let ctr = cb.getController('mapeador'),
+                    et = cb.getCmp(this).up('row'),
                     record = et.getRecord(),
                     position = record.position,
                     letter = et.down('option:selected').text(),
-                    code = et.down('input[name="code"]').getValue();
-                cb.getStore('models').setKey('elementalv1', position, {
+                    code = et.down('input[name="code"]').getValue(),
+                    models = cb.getStore('models'),
+                    tailStore = cb.getStore('keycodesTail'),
+                    key = models.getKey(ctr.selectedModel, position),
+                    keyCount = models.getKeyCount(ctr.selectedModel);
+                // Secure FN key assign
+                if (key.code == 22) {
+                    let position2 = position < keyCount ? position + keyCount : position - keyCount;
+                    models.setKey(ctr.selectedModel, position2, {
+                        letter: '', code: 0
+                    });
+                    tailStore.addKey({
+                        position: position2,
+                        code: 0
+                    });
+                }
+                if (code == 22) {
+                    let position2 = position < keyCount ? position + keyCount : position - keyCount;
+                    models.setKey(ctr.selectedModel, position2, {
+                        letter, code
+                    });
+                    tailStore.addKey({
+                        position: position2,
+                        code
+                    });
+                }
+                models.setKey(ctr.selectedModel, position, {
                     letter, code
                 });
-                let tailStore = cb.getStore('keycodesTail');
                 tailStore.addKey({
                     position, code
                 });

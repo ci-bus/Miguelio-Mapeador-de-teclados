@@ -33,6 +33,9 @@ export default cb.define({
     resetAllClickedKeys (model) {
         this.getAllKeys(model).forEach(k=>delete k.clicked);
     },
+    getKeyCount (model) {
+        return this.getData(model)[0].keyCount;
+    },
     data: {
         elementalv1
     }
