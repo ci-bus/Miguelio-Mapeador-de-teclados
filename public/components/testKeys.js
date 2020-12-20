@@ -34,18 +34,7 @@ export default {
                 },
                 items: {
                     xtype: 'key',
-                    field: 'keys',
-                    click () {
-                        let cmp = cb.getCmp(this),
-                            record = cmp.getRecord(),
-                            keyboard = cb.getCmp('#keyboard');
-
-                        if (!record.special) {
-                            cb.getController('mapeador').showModalEditKey(cmp.getRecord());
-                            keyboard.down('button.btn-success').removeClass('btn-success');
-                            cmp.queryClose('button').addClass('btn-success');
-                        }
-                    }
+                    field: 'keys'
                 }
             }
         }]
