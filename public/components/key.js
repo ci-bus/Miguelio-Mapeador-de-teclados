@@ -15,6 +15,9 @@ export default cb.define({
             if (record.special === 1) {
                 opt.visibility = 'hidden';
             }
+            if (record.loading) {
+                opt.html = '<div class="spinner"><div class="cube1"></div><div class="cube2"></div></div>';
+            }
             if (record.clicked) {
                 opt.type = 'success';
             } else if (record.buttonType) {

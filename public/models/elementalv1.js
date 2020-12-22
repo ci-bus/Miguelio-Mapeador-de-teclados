@@ -505,9 +505,9 @@ export default [{
             position: 75 + 57,
             u: 1.75
         }, {
-            letter: ' ',
+            letter: 'VOL +',
             position: 75 + 58,
-            code: 428
+            code: 600
         }, {
             letter: ' ',
             position: 75 + 59
@@ -539,16 +539,17 @@ export default [{
             letter: ' ',
             position: 75 + 71
         }, {
-            letter: ' ',
+            letter: 'MUTE',
             position: 75 + 72,
-            code: 427
+            code: 602
         }, {
-            letter: ' ',
+            letter: 'VOL -',
             position: 75 + 73,
-            code: 429
+            code: 601
         }, {
-            letter: ' ',
-            position: 75 + 74
+            letter: 'PLAY',
+            position: 75 + 74,
+            code: 603
         }]
     }]
 }];

@@ -2783,7 +2783,7 @@ cb.module.bootstrapComponent = {
                     {
                         if (!opt.items[a].tab.xtype || opt.items[a].tab.xtype == 'a') {
                             opt.items[a].tab.xtype = 'a';
-                            opt.t_a = cb.create(cb.mergeTwoObjects({
+                            opt.t_a = cb.create(cb.mergeTwoObjects({record,
                                 id: opt.items[a].id+'-tab',
                                 attr: {
                                     'aria-controls': opt.items[a].id,
@@ -2801,7 +2801,7 @@ cb.module.bootstrapComponent = {
                                     'data-toggle': 'tab'
                                 }
                             });
-                            $(opt.t_a).append(cb.create(opt.items[a].tab));
+                            $(opt.t_a).append(cb.create(cb.mergeTwoObjects({record},opt.items[a].tab)));
                         }
                         $(opt.t_a).attr('href', '#'+opt.items[a].id);
                     }

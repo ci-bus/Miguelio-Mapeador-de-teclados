@@ -1,6 +1,7 @@
 #include "Keyboard.h"
 #include "EEPROM.h"
 #include "MIDIUSB.h"
+#include "Kmm.h"
 
 /*  Multiplexor señal
  *  -----------------
@@ -181,7 +182,7 @@ void loop()
             addr = getValue(msg, ':', 1).toInt();
             code = getValue(msg, ':', 2).toInt();
             changeKeycode(addr, code);
-            Serial.print("put:ok");
+            Serial.print("put:" + (String) addr + ":ok");
         }
         // Activar modo test switches
         else if (getValue(msg, ':', 0) == "modoTest")
@@ -235,6 +236,7 @@ void loop()
                 // Si la tecla NO esta marcada como pulsada
                 if (matrizTeclasPulsadas[addr] == false)
                 {
+
                     if (modoTest)
                     {
                         Serial.println("modoTest:" + (String)columna + ":" + (String)fila);
@@ -264,10 +266,24 @@ void loop()
                                 MidiUSB.flush();
                             }
                             // Teclas multimedia
-                            else if (code >= 300)
+                            else if (code >= 300 && code < 600)
                             {
                                 Keyboard.press_direct(code - 300);
-                                Keyboard.releaseAll();
+                            }
+                            // Teclas multimedia
+                            else if (code >= 600 && code < 700) {
+                                switch (code) {
+                                    case 600: Kmm.increase(); break;
+                                    case 601: Kmm.decrease(); break;
+                                    case 602: Kmm.mute(); break;
+                                    case 603: Kmm.play(); break;
+                                    case 604: Kmm.pause(); break;
+                                    case 605: Kmm.stop(); break;
+                                    case 606: Kmm.next(); break;
+                                    case 607: Kmm.previous(); break;
+                                    case 608: Kmm.forward(); break;
+                                    case 609: Kmm.rewind(); break;
+                                }
                             }
                             else // Si es una tecla común
                             {
@@ -315,9 +331,12 @@ void loop()
                                 MidiUSB.flush();
                             }
                             // Teclas multimedia
-                            else if (code >= 300)
+                            else if (code >= 300 && code < 600)
                             {
                                 Keyboard.release_direct(code - 300);
+                            }
+                            else if (code >= 600 && code < 700) {
+                                Kmm.clear();
                             }
                             else
                             {
@@ -407,6 +426,7 @@ void changeMap(int val)
 
     // Soltamos todas las teclas
     Keyboard.releaseAll();
+    Kmm.clear();
 
     // Cambio de mapeo
     mapeo = val;

@@ -4,7 +4,7 @@ import mainView from './views/main.js';
 // Stores
 import portStore from './stores/ports.js';
 import keycodesTailStore from './stores/keycodesTail.js';
-import codesStore from './stores/codes.js';
+import keyCodesStore from '../stores/keycodes.js';
 import modelsStore from './stores/models.js';
 
 // Components
@@ -12,12 +12,14 @@ import headerCmp from './components/header.js';
 import editKeyCmp from './components/editKey.js';
 import keyboard from './components/keyboard.js';
 import testKeys from './components/testKeys.js';
+import models from './stores/models.js';
 
 cb.define({
     xtype: 'controller',
     name: 'mapeador',
     onload () {
         let ctr = this;
+        cb.zIndex = 1001;
 
         mainView.render();
         headerCmp.render();
@@ -48,10 +50,10 @@ cb.define({
                         // Pre-configura la tecla
                         let key = modelsStore.getKey(ctr.selectedModel, data[1]);
                         if (key && key.code) {
-                            keycodesTailStore.addKey(key);
+                            keycodesTailStore.addKey(ctr.selectedModel, key);
                         }
                     } else {
-                        let keycode = codesStore.getKey(ctr.selectedModel, data[2]);
+                        let keycode = keyCodesStore.getKey(data[2]);
                         modelsStore.setKey(ctr.selectedModel, data[1], {
                             letter: keycode ? keycode.letter : ' ',
                             code: keycode ? parseInt(keycode.code) : 0,
@@ -60,16 +62,13 @@ cb.define({
                     }
                     break;
                 case 'get':
-                    if (keycodesTailStore.getData().length) {
-                        cb.getCmp('#content').hide();
-                    } else {
-                        cb.create(keyboard.setModelRecord(ctr.selectedModel));
-                        cb.getCmp('#loading').hide();
-                        cb.getCmp('#content').show();
-                        cb.getCmp('#menuOpciones').show();
-                    }
+                    cb.create(keyboard.setModelRecord(ctr.selectedModel));
+                    cb.getCmp('#loading').hide();
+                    cb.getCmp('#content').show();
+                    cb.getCmp('#menuOpciones').show();
                     break;
                 case 'put':
+                    delete models.getKey(ctr.selectedModel, parseInt(data[1])).loading;
                     keycodesTailStore.proccessTail();
                     break;
                 case 'modoTest':

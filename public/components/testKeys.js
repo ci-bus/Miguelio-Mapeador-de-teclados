@@ -14,6 +14,7 @@ export default {
             'padding-bottom': 50
         },
         alterdata (data) {
+            // Disable FN map
             if (data.title != "FN") return data;
         },
         items: [{

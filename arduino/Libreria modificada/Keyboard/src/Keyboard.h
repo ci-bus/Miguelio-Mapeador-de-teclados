@@ -104,9 +104,9 @@ public:
   size_t write(uint8_t k);
   size_t write(const uint8_t *buffer, size_t size);
   size_t press(uint8_t k);
-  size_t press_direct(uint8_t k);
+  size_t press_direct(uint16_t k);
   size_t release(uint8_t k);
-  size_t release_direct(uint8_t k);
+  size_t release_direct(uint16_t k);
   void releaseAll(void);
 };
 extern Keyboard_ Keyboard;

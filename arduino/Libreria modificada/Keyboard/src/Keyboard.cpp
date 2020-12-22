@@ -264,7 +264,7 @@ size_t Keyboard_::press(uint8_t k)
 	return 1;
 }
 
-size_t Keyboard_::press_direct(uint8_t k) 
+size_t Keyboard_::press_direct(uint16_t k) 
 {
 	uint8_t i;
 	
@@ -322,7 +322,7 @@ size_t Keyboard_::release(uint8_t k)
 	sendReport(&_keyReport);
 	return 1;
 }
-size_t Keyboard_::release_direct(uint8_t k) 
+size_t Keyboard_::release_direct(uint16_t k) 
 {
 	uint8_t i;
 	if (k >= 136) {			// it's a non-printing key (not a modifier)
