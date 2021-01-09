@@ -229,15 +229,15 @@ export default [{
             position: 53, columna: 8, fila: 3,
             code: 152
         }, {
-            letter: ',',
+            letter: ', ;',
             position: 54, columna: 9, fila: 3,
             code: 190
         }, {
-            letter: '.',
+            letter: '. :',
             position: 55, columna: 10, fila: 3,
             code: 191
         }, {
-            letter: '-',
+            letter: '- _',
             position: 56, columna: 11, fila: 3,
             code: 192
         }, {

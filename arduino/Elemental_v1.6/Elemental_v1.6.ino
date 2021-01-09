@@ -118,12 +118,59 @@ int fila = 0;
 int val = 0;
 int code = 0;
 int addr = 0;
+int macro = 0;
+int pos = 0;
 
 // Teclas MIDI
 bool midi = false;
 
 // Modo test para probar switches
 bool modoTest = false;
+
+// Macros
+int macrosComienzo = 300;
+int macrosTamanio = 50;
+int macros[6][50] = {{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+},{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+},{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+},{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+},{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+},{
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+}};
+// Cada macro cuenta con 50 bytes
+// empezando en el byte 300 de la EEPROM
+// El primer bit define si la tecla se pulsa 1 o se suelta 0
+// Los 7 restantes bits definen el addr de la tecla
 
 void setup()
 {
@@ -143,8 +190,11 @@ void setup()
         pinMode(pinesFilas[i], OUTPUT);
     }
 
-    // Lee valores EEPROM
+    // Lee valores EEPROM de teclas
     loadKeycodes();
+
+    // Lee valores EEPROM de macros
+    loadMacros();
 
     // Setea mapeo
     mapeo = 0;
@@ -156,7 +206,7 @@ void setup()
 void loop()
 {
 
-    // Comunicacion con el software
+    // Comunicaciones con el software
     if (Serial.available())
     {
         String msg = Serial.readString();
@@ -184,17 +234,24 @@ void loop()
             changeKeycode(addr, code);
             Serial.print("put:" + (String) addr + ":ok");
         }
-        // Activar modo test switches
+        // Configurar macros
+        else if (getValue(msg, ':', 0) == "putMacro")
+        {
+            macro = getValue(msg, ':', 1).toInt();
+            pos = getValue(msg, ':', 2).toInt();
+            addr = getValue(msg, ':', 3).toInt();
+            // Actualiza valor
+            macros[macro][pos] = addr;
+            pos = macro * macrosTamanio + macrosComienzo + pos;
+            // Guarda valor
+            EEPROM.update(pos, addr);
+            if (addr > 0) Serial.print("putMacro:next");
+            else modoTest = false;
+        }
+        // Activa modo test switches
         else if (getValue(msg, ':', 0) == "modoTest")
         {
-            if (getValue(msg, ':', 1) == "true")
-            {
-                modoTest = true;
-            }
-            else
-            {
-                modoTest = false;
-            }
+            modoTest = getValue(msg, ':', 1) == "true";
             Keyboard.releaseAll();
         }
         // Probar un keycode
@@ -239,7 +296,7 @@ void loop()
 
                     if (modoTest)
                     {
-                        Serial.println("modoTest:" + (String)columna + ":" + (String)fila);
+                        Serial.println("modoTest:" + (String)columna + ":" + (String)fila + ":down");
                     }
                     else
                     {
@@ -265,7 +322,7 @@ void loop()
                                 noteOn(0, addr, 127);
                                 MidiUSB.flush();
                             }
-                            // Teclas multimedia
+                            // Envio de codigos directo
                             else if (code >= 300 && code < 600)
                             {
                                 Keyboard.press_direct(code - 300);
@@ -283,6 +340,23 @@ void loop()
                                     case 607: Kmm.previous(); break;
                                     case 608: Kmm.forward(); break;
                                     case 609: Kmm.rewind(); break;
+                                }
+                            }
+                            // Macros
+                            else if (code >= 700 && code < 706) {
+                                macro = code - 700;
+                                for (pos = 0; pos < macrosTamanio; pos ++) {
+                                    delay(50);
+                                    addr = macros[macro][pos];
+                                    if (addr > 0) {
+                                       if (addr > 127) {
+                                          Keyboard.press(teclas[addr - 128]);
+                                       } else {
+                                          Keyboard.release(teclas[addr]);
+                                       }
+                                    } else {
+                                        pos = macrosTamanio;
+                                    }
                                 }
                             }
                             else // Si es una tecla común
@@ -306,7 +380,11 @@ void loop()
                 if (matrizTeclasPulsadas[addr] == true)
                 {
 
-                    if (!modoTest)
+                    if (modoTest)
+                    {
+                        Serial.println("modoTest:" + (String)columna + ":" + (String)fila + ":up");
+                    }
+                    else
                     {
                         switch (code)
                         {
@@ -403,6 +481,23 @@ void loadKeycodes()
     for (addr = 0; addr < 150; addr++)
     {
         teclas[addr] = EEPROMReadInt(addr);
+    }
+}
+
+// Lee la configuracion de macros
+void loadMacros()
+{
+    for (macro = 0; macro < 6; macro ++)
+    {
+        for (pos = 0; pos < macrosTamanio; pos ++)
+        {
+            macros[macro][pos] = EEPROM.read(macro * macrosTamanio + macrosComienzo + pos);
+            if (macros[macro][pos] <= 0 || macros[macro][pos] == 255)
+            {
+                macros[macro][pos] = 0;
+                pos = macrosTamanio;
+            }
+        }
     }
 }
 

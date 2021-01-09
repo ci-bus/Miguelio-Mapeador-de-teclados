@@ -80,7 +80,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('putKeyCode', (position, keycode) => {
+        // Configura una tecla
         app.arduinoSerialPort.write("put:"+position+":"+keycode);
+    });
+
+    socket.on('putMacro', (macro, position, addr) => {
+        // Configura un macro
+        app.arduinoSerialPort.write("putMacro:"+macro+":"+position+":"+addr);
     });
 
     // Cuando desconecta

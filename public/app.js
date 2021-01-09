@@ -6,6 +6,7 @@ import portStore from './stores/ports.js';
 import keycodesTailStore from './stores/keycodesTail.js';
 import keyCodesStore from '../stores/keycodes.js';
 import modelsStore from './stores/models.js';
+import editMacroStore from '../stores/editMacro.js';
 
 // Components
 import headerCmp from './components/header.js';
@@ -71,7 +72,11 @@ cb.define({
                     delete models.getKey(ctr.selectedModel, parseInt(data[1])).loading;
                     keycodesTailStore.proccessTail();
                     break;
+                case 'putMacro':
+                    editMacroStore.progressSave();
+                    break;
                 case 'modoTest':
+                    editMacroStore.addAction(data[3], parseInt(data[2]) * 15 + parseInt(data[1]));
                     modelsStore.clickedKey(ctr.selectedModel, data[1], data[2]);
                     break;
             }
@@ -130,6 +135,7 @@ cb.define({
                 }]
             },{
                 xtype: 'body',
+                id: 'modal-content',
                 items: editKeyCmp
             }]
         });

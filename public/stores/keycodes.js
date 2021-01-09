@@ -46,8 +46,8 @@ export default cb.define({
         others: {
             title: 'Otros',
             keys: madeKeys(
-                'UP|DOWN|LEFT|RIGHT|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12',
-                '218|217|216|215|194|195|196|197|198|199|200|201|202|203|204|205'
+                'UP|DOWN|LEFT|RIGHT|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|M1|M2|M3|M4|M5|M6',
+                '218|217|216|215|194|195|196|197|198|199|200|201|202|203|204|205|700|701|702|703|704|705'
             )
         },
         mac_only: {

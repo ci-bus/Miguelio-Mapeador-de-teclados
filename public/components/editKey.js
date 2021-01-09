@@ -1,3 +1,5 @@
+import editMacroCmp from './editMacro.js';
+
 const btnAction = function () {
     let ctr = cb.getController('mapeador'),
         btn = cb.getCmp(this),
@@ -37,7 +39,13 @@ const btnAction = function () {
     tailStore.addKey(ctr.selectedModel, {
         position, code
     });
-    cb.getCmp('panel').up().remove();
+    // Macros
+    if (code >= 700 && code < 706) {
+        cb.getStore('editMacro').setMacro(code - 700);
+        cb.create(editMacroCmp);
+    } else {
+        cb.getCmp('panel').up().remove();
+    }
 };
 
 export default {
