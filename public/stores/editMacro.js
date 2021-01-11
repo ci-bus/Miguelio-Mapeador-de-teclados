@@ -1,3 +1,5 @@
+let macrosTamanio = 50;
+
 export default cb.define({
     xtype: 'store',
     name: 'editMacro',
@@ -21,10 +23,22 @@ export default cb.define({
     },
     addAction (action, addr) {
         let date = new Date();
-        this.data.actions.push({
-            action, addr, id: date.getTime() + '' + date.getMilliseconds()
-        });
-        this.storelink();
+        if (this.data.actions.length < macrosTamanio) {
+            this.data.actions.push({
+                action, addr, id: date.getTime() + '' + date.getMilliseconds()
+            });
+            this.storelink();
+        } else {
+            if (!$('#alertmaxmacros').length) {
+                cb.create({
+                    xtype: 'alert',
+                    type: 'danger',
+                    prependTo: '#editMacroContainer',
+                    id: 'alertmaxmacros',
+                    text: 'Se ha superado el máximo de acciones.'
+                });
+            }
+        }
     },
     removeAction (id) {
         let count = 0;

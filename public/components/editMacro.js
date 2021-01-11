@@ -1,3 +1,4 @@
+import extraKeys from '../stores/extraKeys.js';
 let capturando = false;
 
 export default {
@@ -23,7 +24,7 @@ export default {
         }, {
             xtype: 'div',
             id: 'editMacroProgress',
-            //display: 'none',
+            display: 'none',
             items: {
                 xtype: 'progress',
                 margin: 0,
@@ -55,12 +56,30 @@ export default {
                 cb.getController('mapeador').socket.emit(capturando ? 'enableTestMode' : 'disableTestMode');
                 cb.getCmp(this).toggleClass('btn-warning').text(capturando ? 'Dejar de capturar' : 'Capturar teclas');
                 cb.getCmp(this).queryClose('.btn-success').css('display', capturando ? 'none' : 'block');
+                $('#dropdowndelay').css('display', capturando ? 'inline-block' : 'none');
+            }
+        }, {
+            xtype: 'dropdown',
+            text: 'Esperar ',
+            id: 'dropdowndelay',
+            items: {
+                xtype: 'a',
+                store: 'extraKeys',
+                text: '{letter} ',
+                cursor: 'pointer',
+                click (e) {
+                    e.stopPropagation();
+                    let r = cb.getCmp(this).getRecord();
+                    cb.getStore('editMacro').addAction('up', r.addr);
+                    $('#dropdowndelay').click();
+                }
             }
         }, {
             xtype: 'button',
             type: 'success',
             text: 'Guardar',
             pull: 'right',
+            display: 'none',
             click () {
                 if (capturando) {
                     cb.getController('mapeador').socket.emit('disableTestMode');
@@ -68,7 +87,8 @@ export default {
                 }
                 cb.getCmp('#editMacroContainer').hide();
                 cb.getStore('editMacro').setSaving(0);
-                cb.getCmp('#editMacroLoading, #editMacroProgress').show();
+                cb.getCmp('#editMacroLoading').show();
+                cb.getCmp('#editMacroProgress').show();
                 setTimeout(() => cb.getStore('editMacro').progressSave(), 1000);
             }
         }, {
@@ -95,13 +115,18 @@ export default {
                     alterdata (addr) {
                         let ctr = cb.getController('mapeador'),
                             models = cb.getStore('models'),
+                            key = null;
+                        if (addr > 247) {
+                            key = extraKeys.getAction(addr);
+                        } else {
                             key = models.getKey(ctr.selectedModel, addr);
+                        }
                         return cb.create({
                             xtype: 'button',
                             type: 'primary',
                             size: 'xs',
                             text: key.letter
-                        });
+                        });                        
                     }
                 }, {
                     xtype: 'button',
@@ -120,9 +145,10 @@ export default {
     }],
     onRender () {
         cb.getStore('editMacro').clearAll();
+        $('#dropdowndelay').css('display', 'none');
         setTimeout(() => {
             cb.getCmp('#editMacroLoading').hide();
             cb.getCmp('#editMacroContainer').show();
-        }, 2000);
+        }, 1500);
     }
 };

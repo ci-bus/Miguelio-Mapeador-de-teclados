@@ -346,11 +346,24 @@ void loop()
                             else if (code >= 700 && code < 706) {
                                 macro = code - 700;
                                 for (pos = 0; pos < macrosTamanio; pos ++) {
-                                    delay(50);
+                                    delay(5);
                                     addr = macros[macro][pos];
                                     if (addr > 0) {
                                        if (addr > 127) {
-                                          Keyboard.press(teclas[addr - 128]);
+                                          if (addr > 247) {
+                                              switch (addr) {
+                                                  case 248: delay(50); break;
+                                                  case 249: delay(100); break;
+                                                  case 250: delay(250); break;
+                                                  case 251: delay(500); break;
+                                                  case 252: delay(1000); break;
+                                                  case 253: delay(2000); break;
+                                                  case 254: delay(5000); break;
+                                                  case 255: delay(10000); break;
+                                              }
+                                          } else {
+                                              Keyboard.press(teclas[addr - 128]);
+                                          }
                                        } else {
                                           Keyboard.release(teclas[addr]);
                                        }
