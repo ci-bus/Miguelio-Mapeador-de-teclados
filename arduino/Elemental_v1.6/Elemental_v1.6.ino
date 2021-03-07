@@ -124,6 +124,9 @@ int pos = 0;
 // Teclas MIDI
 bool midi = false;
 
+// Led mayusculas control
+bool mayusculas = false;
+
 // Modo test para probar switches
 bool modoTest = false;
 
@@ -198,6 +201,9 @@ void setup()
 
     // Setea mapeo
     mapeo = 0;
+
+    // Led tecla mayusculas
+    pinMode(A1, OUTPUT);
 
     // Inicializa puerto serial para comunicaciones con el software
     Serial.begin(9600);
@@ -433,6 +439,12 @@ void loop()
                             {
                                 // Soltamos la tecla
                                 Keyboard.release(code);
+
+                                // Led tecla mayusculas
+                                if (code == 193) {
+                                  mayusculas = !mayusculas;
+                                  digitalWrite(A1, mayusculas);
+                                }
                             }
                             break;
                         }
